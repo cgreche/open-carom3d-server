@@ -1,5 +1,6 @@
 
 #include "ntConnection.h"
+#include "ntEventHandler.h"
 
 namespace nettools {
 
@@ -117,7 +118,7 @@ namespace nettools {
 	}
 
 	NT_ERROR ntConnection::recv(int socket, u8 *data, u32 maxlen, u32 *recvLen) {
-		return recv(socket, data, maxlen, recvLen);
+		return _recv(socket, data, maxlen, recvLen);
 	}
 
 	NT_ERROR ntConnection::poll() {
@@ -129,8 +130,8 @@ namespace nettools {
 		return _close(m_socket);
 	}
 
-	void ntConnection::setEventHandler(ntEventHandler eventHandler) {
-		m_messageHandler = eventHandler;
+	void ntConnection::setEventHandler(ntEventHandler *eventHandler) {
+		m_eventHandler = eventHandler;
 	}
 
 }

@@ -22,15 +22,7 @@ namespace nettools {
 		NTERR_OTHER
 	};
 
-	enum NT_EVENT {
-		NT_EVT_CONNECT,
-		NT_EVT_DISCONNECT,
-		NT_EVT_DATARECV,
-		NT_EVT_DATASENT
-	};
-
-	class ntConnection;
-	typedef void(*ntEventHandler)(NT_EVENT event, ntConnection *connection, unsigned char *data, unsigned int dataLen);
+	class ntEventHandler;
 
 	class ntConnection {
 
@@ -39,7 +31,7 @@ namespace nettools {
 	protected:
 		int m_socket; //fd/SOCKET
 		sockaddr_in m_address;
-		ntEventHandler m_messageHandler;
+		ntEventHandler *m_eventHandler;
 		void *m_bindedData;
 
 		NT_ERROR _socket(int *socket);
@@ -64,9 +56,10 @@ namespace nettools {
 		virtual NT_ERROR poll();
 		virtual NT_ERROR close();
 
-		void setEventHandler(ntEventHandler eventHandler);
+        int socket() const { return m_socket; }
 
-		int socket() const { return m_socket; }
+		void setEventHandler(ntEventHandler *eventHandler);
+		ntEventHandler *eventHandler() const { return m_eventHandler; }
 
 		void bindData(void *data) { m_bindedData = data; }
         void* bindedData() { return m_bindedData; }

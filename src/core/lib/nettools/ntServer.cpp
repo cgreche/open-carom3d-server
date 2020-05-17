@@ -1,5 +1,6 @@
 
 #include "ntServer.h"
+#include "ntEventHandler.h"
 
 namespace nettools {
 
@@ -29,25 +30,32 @@ namespace nettools {
 			result = _accept(m_socket,&newClient);
 			if (newClient) {
 				m_clients.push_back(newClient);
-				if (m_messageHandler)
-					m_messageHandler(NT_EVT_CONNECT, newClient, NULL, NULL);
+				if (m_eventHandler)
+				    //TODO(CGR): newClient must be of ntClient* type
+                    m_eventHandler->onClientConnection((ntClient*)newClient);
 			}
 		} while (result == NTERR_SUCCESS);
 
-
-		for (i = 0; i < m_clients.size(); ++i) {
+		std::vector<ntConnection*>::iterator it = m_clients.begin();
+		for(; it!= m_clients.end(); ) {
+		    ntConnection* conn = *it;
 			u8 data[MAX_PACKET_SIZE];
 			u32 recvd;
-			result = _recv(m_clients[i]->socket(), data, MAX_PACKET_SIZE, &recvd);
+			result = _recv(conn->socket(), data, MAX_PACKET_SIZE, &recvd);
 			if (result == NTERR_SUCCESS) {
-				if (m_messageHandler) {
-					if (recvd == 0)
-						m_messageHandler(NT_EVT_DISCONNECT, m_clients[i], NULL, NULL);
-					else
-						m_messageHandler(NT_EVT_DATARECV, m_clients[i], data, recvd);
+				if (m_eventHandler) {
+					if (recvd == 0) {
+                        //TODO(CGR): m_clients must be of ntClient type
+                        m_eventHandler->onClientDisconnection((ntClient *) conn);
+                        it = m_clients.erase(it);
+                        continue;
+                    } else {
+                        //TODO(CGR): m_Clients myst be of ntClient type
+                        m_eventHandler->onClientDataReceived((ntClient *) conn, data, recvd);
+                    }
 				}
 			}
-
+			++it;
 		}
 		return NTERR_SUCCESS;
 	}
