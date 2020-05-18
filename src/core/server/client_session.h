@@ -15,6 +15,7 @@ class Server;
 
 class ClientSession {
     Server &m_server;
+    int m_sessionId;
     nettools::ntClient &m_ntClient;
     std::vector<char> m_unparsedData;
     CryptoContext m_inDataCryptoCtx;
@@ -42,6 +43,8 @@ public:
     }
 
     void sendAction(ActionData &action);
+
+    int sessionId() const { return m_sessionId; }
 };
 
 #endif //__OPEN_CAROM3D_SERVER_CLIENTSESSION_H__

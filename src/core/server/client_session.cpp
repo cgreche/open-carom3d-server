@@ -7,6 +7,7 @@
 
 ClientSession::ClientSession(nettools::ntClient &ntClient, Server &mServer)
     : m_ntClient(ntClient), m_server(mServer) {
+    m_sessionId = ntClient.socket();
 }
 
 void ClientSession::sendAction(ActionData &action) {

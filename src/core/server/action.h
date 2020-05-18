@@ -34,7 +34,7 @@ template <class T>
 class AbstractAction : public Action {
 public:
     bool validate(ActionData &action) override {
-        return action.data().size() == sizeof(T);
+        return true;
     }
 
     void execute(ActionData &action, ClientSession &client) override {

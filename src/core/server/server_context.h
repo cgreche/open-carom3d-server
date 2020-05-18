@@ -6,7 +6,6 @@
 #define __OPEN_CAROM3D_SERVER_SERVER_CONTEXT_H__
 
 #include <map>
-
 #include "server_config.h"
 #include "messaging/message_listener.h"
 
@@ -21,18 +20,34 @@ class Server {
 
     std::map<int, Action*>* m_actionMap;
 
+    void addClient(ClientSession* client);
+    void removeClient(ClientSession *client);
+
 public:
     //TODO: What is explicit?
     explicit Server(const ServerConfig &config);
 
-    void run();
+    void poll();
+    virtual void run();
 
-    void addClient(ClientSession* client);
     void processClientActions(ClientSession* client);
     void sendAction(Action& action);
     void disconnectClient(ClientSession* client);
 
     void setActionMap(std::map<int, Action*>* actionMap);
+
+    virtual void onClientConnection(ClientSession* client);
+
+    virtual void onClientAction(ClientSession* client, ActionData& actionData) { }
+
+    virtual void onClientDisconnection(ClientSession* client);
+
+    const char *hostname() const { return m_config.host.c_str(); }
+    unsigned short port() const { return m_config.port; }
+    virtual unsigned int clientsConnectedCount() {
+        return m_clients.size();
+    }
+
 };
 
 #endif //__OPEN_CAROM3D_SERVER_SERVER_CONTEXT_H__

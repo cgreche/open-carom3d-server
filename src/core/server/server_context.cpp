@@ -9,16 +9,32 @@ Server::Server(const ServerConfig &config)
     : m_messageListener(*this) {
     m_config = config;
     m_actionMap = nullptr;
+
+    m_messageListener.listen(config.port);
+}
+
+void Server::poll() {
+    m_messageListener.poll();
 }
 
 void Server::run() {
-    m_messageListener.listen(m_config.port);
-
+    for(;;) {
+        m_messageListener.poll();
+    }
 }
 
 void Server::addClient(ClientSession *client) {
     //assert(client != nullptr_t);
     m_clients.push_back(client);
+}
+
+void Server::removeClient(ClientSession *client) {
+    for(auto it = m_clients.begin(); it != m_clients.end(); ++it) {
+        if (*it == client) {
+            m_clients.erase(it);
+            return;
+        }
+    }
 }
 
 void Server::processClientActions(ClientSession *client) {
@@ -38,6 +54,7 @@ void Server::processClientActions(ClientSession *client) {
         }
         else {
             //TODO: Invalid Action
+            int a = actionData.id();
         }
     }
     client->clearPendingActions();
@@ -49,4 +66,12 @@ void Server::disconnectClient(ClientSession *client) {
 
 void Server::setActionMap(std::map<int, Action*>* actionMap) {
     m_actionMap = actionMap;
+}
+
+void Server::onClientConnection(ClientSession *client) {
+    addClient(client);
+}
+
+void Server::onClientDisconnection(ClientSession *client) {
+    removeClient(client);
 }

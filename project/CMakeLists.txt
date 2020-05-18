@@ -7,15 +7,36 @@ include_directories(../src)
 include_directories(../src/core/lib)
 
 add_executable(open_carom3d_server
-        ../src/business/actions/create_account_action.cpp
-        ../src/business/actions/create_account_action.h
-        ../src/business/actions/login_action.cpp
-        ../src/business/actions/login_action.h
-        ../src/business/actions/send_message_action.cpp
-        ../src/business/actions/send_message_action.h
-        ../src/business/actions/send_private_message_action.cpp
-        ../src/business/actions/send_private_message_action.h
-        ../src/business/action_mapper.cpp
+        ../src/business/game_server/actions/channel_message_action.cpp
+        ../src/business/game_server/actions/channel_message_action.h
+        ../src/business/game_server/actions/login_action.cpp
+        ../src/business/game_server/actions/login_action.h
+        ../src/business/game_server/game_server.cpp
+        ../src/business/game_server/game_server.h
+        ../src/business/management_server/actions/client_version_action.cpp
+        ../src/business/management_server/actions/client_version_action.h
+        ../src/business/management_server/actions/login_action.cpp
+        ../src/business/management_server/actions/login_action.h
+        ../src/business/management_server/actions/server_list_request_action.cpp
+        ../src/business/management_server/actions/server_list_request_action.h
+        ../src/business/management_server/management_server.cpp
+        ../src/business/management_server/management_server.h
+        ../src/business/account.cpp
+        ../src/business/account.h
+        ../src/business/account_service.cpp
+        ../src/business/account_service.h
+        ../src/business/channel.cpp
+        ../src/business/channel.h
+        ../src/business/lobby_service.cpp
+        ../src/business/lobby_service.h
+        ../src/business/player.cpp
+        ../src/business/player.h
+        ../src/business/server_service.cpp
+        ../src/business/server_service.h
+        ../src/business/user.cpp
+        ../src/business/user.h
+        ../src/business/user_service.cpp
+        ../src/business/user_service.h
         ../src/core/lib/nettools/ntClient.cpp
         ../src/core/lib/nettools/ntClient.h
         ../src/core/lib/nettools/ntConnection.cpp

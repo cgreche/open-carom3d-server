@@ -17,6 +17,6 @@ void CryptoContext::crypt(unsigned char data[], unsigned int len) {
 }
 
 void CryptoContext::update() {
-    m_cryptoByte = m_cryptoByte*m_cryptoByte + m_cryptoByte*2/3 + 4;
+    m_cryptoByte = m_cryptoByte*m_cryptoByte + m_cryptoByte*2 + m_cryptoByte/3 + 4;
 }
 

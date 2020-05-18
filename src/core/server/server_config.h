@@ -5,7 +5,10 @@
 #ifndef __OPEN_CAROM3D_SERVER_SERVER_CONFIG_H__
 #define __OPEN_CAROM3D_SERVER_SERVER_CONFIG_H__
 
+#include <string>
+
 struct ServerConfig {
+    std::string host;
     unsigned short port;
 };
 
