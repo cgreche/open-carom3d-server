@@ -7,9 +7,13 @@
 
 #include <string>
 
-struct ServerConfig {
-    std::string host;
-    unsigned short port;
-};
+namespace core {
+
+    struct ServerConfig {
+        std::string host;
+        unsigned short port;
+    };
+
+}
 
 #endif //__OPEN_CAROM3D_SERVER_SERVER_CONFIG_H__

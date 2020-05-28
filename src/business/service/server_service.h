@@ -7,20 +7,22 @@
 
 #include <list>
 
-class ServerConfig;
-class Server;
+namespace core {
+    class ServerConfig;
+    class Server;
+}
 
 namespace business {
 
     class ServerService {
-        std::list<Server *> m_servers;
+        std::list<core::Server *> m_servers;
 
     public:
         static ServerService &getInstance();
 
-        Server *startServer(const ServerConfig &serverConfig);
+        core::Server *startServer(const core::ServerConfig &serverConfig);
 
-        std::list<Server *> &getServerList();
+        std::list<core::Server *> &getServerList();
 
         void poll();
     };

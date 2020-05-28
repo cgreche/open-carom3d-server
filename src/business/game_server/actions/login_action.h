@@ -5,25 +5,15 @@
 #ifndef __OPEN_CAROM3D_SERVER_GAME_SERVER_LOGINACTION_H__
 #define __OPEN_CAROM3D_SERVER_GAME_SERVER_LOGINACTION_H__
 
-#include <core/server/action.h>
+#include <business/util/abstract_action.h>
+#include <business/api/messaging.h>
 
-namespace game {
+namespace business {
 
-#pragma pack(push, 1)
-    struct LoginData {
-        const wchar_t username[21];
-        const wchar_t password[13];
-        const wchar_t country[4];
-        const unsigned char unk[26];
-        const unsigned char unk2[20];
-        unsigned long server;
-    };
-#pragma pack(pop)
-
-    class LoginAction : public AbstractAction<LoginData> {
+    class LoginAction : public AbstractAction<LoginActionData> {
     public:
-        bool validate(ActionData &action) override;
-        void execute(ActionData &action, ClientSession &client, const LoginData *data) override;
+        bool validate(const ActionData &action) override;
+        void execute(const ActionData &action, User &user, const LoginActionData *data) override;
     };
 
 }

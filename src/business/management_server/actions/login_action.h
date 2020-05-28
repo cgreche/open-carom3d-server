@@ -5,9 +5,9 @@
 #ifndef __OPEN_CAROM3D_SERVER_LOGINACTION_H__
 #define __OPEN_CAROM3D_SERVER_LOGINACTION_H__
 
-#include "core/server/action.h"
+#include <business/util/abstract_action.h>
 
-namespace management {
+namespace business { namespace management {
 
 #pragma pack(push, 1)
     struct LoginData {
@@ -22,12 +22,12 @@ namespace management {
     class LoginAction : public AbstractAction<LoginData> {
 
     public:
-        bool validate(ActionData &action);
+        bool validate(const ActionData &action);
 
-        void execute(ActionData &action, ClientSession &client, const LoginData *data) override;
+        void execute(const ActionData &action, User &user, const LoginData *data) override;
 
     };
 
-}
+}}
 
 #endif //__OPEN_CAROM3D_SERVER_LOGINACTION_H__

@@ -1,0 +1,25 @@
+//
+// Created by CGR on 19/05/2020.
+//
+
+#ifndef __OPEN_CAROM3D_SERVER_CONSTANTS_H__
+#define __OPEN_CAROM3D_SERVER_CONSTANTS_H__
+
+#define ACCOUNT_NAME_MAX_LEN 20
+#define ACCOUNT_PASSWORD_MAX_LEN 12
+#define ACCOUNT_COUNTRY_MAX_LEN 3
+
+#define PLAYER_NAME_MAX_LEN 20
+#define GUILD_NAME_MAX_LEN 16
+
+#define ROOM_TITLE_MAX_LEN 40
+#define ROOM_PASSWORD_MAX_LEN 8
+#define ROOM_SLOT_COUNT 30
+
+enum class SpotType {
+    CHANNEL = 1,
+    ROOM = 2,
+    IN_GAME = 3
+};
+
+#endif //__OPEN_CAROM3D_SERVER_CONSTANTS_H__

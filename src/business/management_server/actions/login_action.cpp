@@ -4,13 +4,13 @@
 
 #include <core/server/client_session.h>
 #include "login_action.h"
-#include <business/account_service.h>
-#include <business/player.h>
+#include <business/service/account_service.h>
+#include <business/entity/player.h>
 
-namespace management {
+namespace business { namespace management {
 
 #pragma pack(push, 1)
-    struct LoginResult {
+    struct MSLoginResult {
         unsigned long result;
         wchar_t playerName[21];
         unsigned long totalPoints;
@@ -36,20 +36,20 @@ namespace management {
     };
 #pragma pack(pop)
 
-    bool LoginAction::validate(ActionData &action) {
+    bool LoginAction::validate(const ActionData &action) {
         int size = action.data().size();
         int _size = sizeof(LoginData);
         return size == _size;
     }
 
-    void LoginAction::execute(ActionData &action, ClientSession &client, const LoginData *data) {
+    void LoginAction::execute(const ActionData &action, User &user, const LoginData *data) {
         printf("Player logged in: %ws, %ws", data->username, data->password);
 
         Account* account = AccountService::getInstance().createAccount(data->username, data->password);
         Player* player = AccountService::getInstance().createPlayerFromAccount(*account);
         account->setPlayer(player);
 
-        LoginResult loginResult = {
+        MSLoginResult loginResult = {
                 0x00,
                 L"", (unsigned long)player->points(), 0, (unsigned long)1,
                 0, 0, {0, 0, 0, 0, 0, 0}, 0, 0, 0,
@@ -61,7 +61,7 @@ namespace management {
         ::wcsncpy(loginResult.playerName, player->name(), 20);
         loginResult.playerName[20] = L'\x00';
         ActionData actionData(0x05, (unsigned char *) &loginResult, sizeof(loginResult));
-        client.sendAction(actionData);
+        user.client().sendAction(actionData);
     }
 
-}
+}}

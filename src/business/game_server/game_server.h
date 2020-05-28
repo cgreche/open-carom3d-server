@@ -5,15 +5,31 @@
 #ifndef __OPEN_CAROM3D_SERVER_GAME_SERVER_H__
 #define __OPEN_CAROM3D_SERVER_GAME_SERVER_H__
 
+#include <list>
+#include <core/server/server_config.h>
 #include <core/server/server_context.h>
+#include <business/entity/room.h>
 
-namespace game {
+namespace business {
 
-    class GameServer : public Server {
+    class User;
+    class Room;
+
+    class GameServer : public core::Server {
+        std::list<User*> m_users;
+        std::list<Room*> m_rooms;
+
     public:
-        explicit GameServer(const ServerConfig &config);
-        void onClientConnection(ClientSession *client) override;
-        void onClientDisconnection(ClientSession *client) override;
+        explicit GameServer(const core::ServerConfig &config);
+        void onClientConnection(core::ClientSession *client) override;
+        void onClientDisconnection(core::ClientSession *client) override;
+
+        int createRoom(const wchar_t* title, User* user, int maxPlayers, const Room::GameInfo& gameInfo, Room** pRetRoom);
+        Room* getRoom(const wchar_t* title);
+        int destroyRoom(Room& room);
+
+        const std::list<User*>& users() const { return m_users; }
+        const std::list<Room*>& rooms() const { return m_rooms; }
     };
 
 }

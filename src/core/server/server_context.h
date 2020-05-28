@@ -9,45 +9,56 @@
 #include "server_config.h"
 #include "messaging/message_listener.h"
 
-class ClientSession;
-class Action;
+namespace core {
 
-class Server {
-    ServerConfig m_config;
-    MessageListener m_messageListener;
+    class ClientSession;
 
-    std::vector<ClientSession*> m_clients;
+    class Action;
 
-    std::map<int, Action*>* m_actionMap;
+    class Server {
+        ServerConfig m_config;
+        MessageListener m_messageListener;
 
-    void addClient(ClientSession* client);
-    void removeClient(ClientSession *client);
+        std::vector<ClientSession *> m_clients;
 
-public:
-    //TODO: What is explicit?
-    explicit Server(const ServerConfig &config);
+        std::map<int, Action *> *m_actionMap;
 
-    void poll();
-    virtual void run();
+        void addClient(ClientSession *client);
 
-    void processClientActions(ClientSession* client);
-    void sendAction(Action& action);
-    void disconnectClient(ClientSession* client);
+        void removeClient(ClientSession *client);
 
-    void setActionMap(std::map<int, Action*>* actionMap);
+    public:
+        //TODO: What is explicit?
+        explicit Server(const ServerConfig &config);
 
-    virtual void onClientConnection(ClientSession* client);
+        void poll();
 
-    virtual void onClientAction(ClientSession* client, ActionData& actionData) { }
+        virtual void run();
 
-    virtual void onClientDisconnection(ClientSession* client);
+        void processClientActions(ClientSession *client);
 
-    const char *hostname() const { return m_config.host.c_str(); }
-    unsigned short port() const { return m_config.port; }
-    virtual unsigned int clientsConnectedCount() {
-        return m_clients.size();
-    }
+        void sendAction(Action &action);
 
-};
+        void disconnectClient(ClientSession *client);
+
+        void setActionMap(std::map<int, Action *> *actionMap);
+
+        virtual void onClientConnection(ClientSession *client);
+
+        virtual void onClientAction(ClientSession *client, ActionData &actionData) {}
+
+        virtual void onClientDisconnection(ClientSession *client);
+
+        const char *hostname() const { return m_config.host.c_str(); }
+
+        unsigned short port() const { return m_config.port; }
+
+        virtual unsigned int clientsConnectedCount() {
+            return m_clients.size();
+        }
+
+    };
+
+}
 
 #endif //__OPEN_CAROM3D_SERVER_SERVER_CONTEXT_H__

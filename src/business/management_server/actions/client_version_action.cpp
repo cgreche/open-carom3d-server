@@ -4,15 +4,15 @@
 
 #include "client_version_action.h"
 
-namespace management {
+namespace business { namespace management {
 
-    bool ClientVersionAction::validate(ActionData &action) {
+    bool ClientVersionAction::validate(const ActionData &action) {
         //TODO(CGR): validate version
         return true;
     }
 
-    void ClientVersionAction::execute(ActionData &action, ClientSession &client, const char *data) {
+    void ClientVersionAction::execute(const ActionData &action, User &user, const char *data) {
         printf(data);
     }
 
-}
+}}

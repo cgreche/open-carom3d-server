@@ -10,7 +10,7 @@
 #include "actions/login_action.h"
 #include "management_server.h"
 
-namespace management {
+namespace business { namespace management {
 
 #define SERVER_LIST_REQUEST 0x00
 #define LOGIN_ACTION 0x01
@@ -29,14 +29,19 @@ namespace management {
 
     void ManagementServer::onClientConnection(ClientSession *client) {
         Server::onClientConnection(client);
+        UserService::getInstance().createUserSession(*client);
 
         char version[] = "5.31";
         ActionData versionAction(0x00, (unsigned char*)version, sizeof(version));
         client->sendAction(versionAction);
     }
 
+    void ManagementServer::onClientDisconnection(ClientSession *client) {
+        int a = 1;
+    }
+
     void ManagementServer::run() {
         Server::run();
     }
 
-}
+}}

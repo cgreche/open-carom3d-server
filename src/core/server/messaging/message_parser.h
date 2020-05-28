@@ -9,14 +9,18 @@
 #include "../action.h"
 #include "crypto.h"
 
-struct ParsedDataResultInfo {
-    std::vector<ActionData> parsedActions;
-    unsigned int parsedTotalLen;
-};
+namespace core {
 
-class MessageParser {
-public:
-    ParsedDataResultInfo parseMessageData(CryptoContext &cryptoCtx, unsigned char *data, unsigned int dataLen);
-};
+    struct ParsedDataResultInfo {
+        std::vector<ActionData> parsedActions;
+        unsigned int parsedTotalLen;
+    };
+
+    class MessageParser {
+    public:
+        ParsedDataResultInfo parseMessageData(CryptoContext &cryptoCtx, unsigned char *data, unsigned int dataLen);
+    };
+
+}
 
 #endif //__OPEN_CAROM3D_SERVER_MESSAGE_PARSER_H__

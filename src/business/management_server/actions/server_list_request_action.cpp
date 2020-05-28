@@ -7,10 +7,9 @@
 
 #include "server_list_request_action.h"
 #include <core/server/server_context.h>
-#include <core/server/client_session.h>
-#include <business/server_service.h>
+#include <business/service/server_service.h>
 
-namespace management {
+namespace business { namespace management {
 
 #pragma pack(push, 1)
     struct ServerInfo {
@@ -39,16 +38,16 @@ namespace management {
     };
 #pragma pack(pop)
 
-    void ServerListRequestAction::execute(ActionData &action, ClientSession &client, const void *unused) {
+    void ServerListRequestAction::execute(const ActionData &action, User &user, const void *unused) {
 
         ServerInfo serverInfo = {
                 0x01,
                 0x02,
-                L"Carom PTB-1",
-                0x02,
+                L"Carom PTB-1 - All",
+                0x03,
                 "",
                 9883,
-                100,
+                500,
                 0,
                 500,
                 0, //unk
@@ -56,8 +55,6 @@ namespace management {
                 0,
                 1
         };
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         ServerInfoUpdate updateInfo = {0};
         updateInfo.serverState = 1;
@@ -71,10 +68,10 @@ namespace management {
 
             serverInfo.playersConnected = server->clientsConnectedCount();
             ActionData serverInfoAction(0x01, (unsigned char *) &serverInfo, sizeof(serverInfo));
-            client.sendAction(serverInfoAction);
+            user.client().sendAction(serverInfoAction);
         }
         ActionData serverListEnd(0x04, nullptr, 0);
-        client.sendAction(serverListEnd);
+        user.client().sendAction(serverListEnd);
     }
 
-}
+}}

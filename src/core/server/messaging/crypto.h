@@ -5,13 +5,19 @@
 #ifndef OPEN_CAROM3D_SERVER_CRYPTO_H
 #define OPEN_CAROM3D_SERVER_CRYPTO_H
 
-class CryptoContext {
-    unsigned char m_cryptoByte;
+namespace core {
 
-public:
-    CryptoContext();
-    void crypt(unsigned char data[], unsigned int len);
-    void update();
-};
+    class CryptoContext {
+        unsigned char m_cryptoByte;
+
+    public:
+        CryptoContext();
+
+        void crypt(unsigned char data[], unsigned int len);
+
+        void update();
+    };
+
+}
 
 #endif //OPEN_CAROM3D_SERVER_CRYPTO_H

@@ -5,17 +5,17 @@
 #ifndef __OPEN_CAROM3D_SERVER_SERVER_LIST_REQUEST_H__
 #define __OPEN_CAROM3D_SERVER_SERVER_LIST_REQUEST_H__
 
-#include <core/server/action.h>
+#include <business/util/abstract_action.h>
 
-namespace management {
+namespace business { namespace management {
 
     class ServerListRequestAction : public AbstractAction<void> {
     public:
-        bool validate(ActionData &action) override { return true; }
+        bool validate(const ActionData &action) override { return true; }
 
-        void execute(ActionData &action, ClientSession &client, const void *unused) override;
+        void execute(const ActionData &action, User &user, const void *unused) override;
     };
 
-}
+}}
 
 #endif //__OPEN_CAROM3D_SERVER_SERVER_LIST_REQUEST_H__

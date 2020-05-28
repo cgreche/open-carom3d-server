@@ -9,16 +9,17 @@
 
 #include <list>
 
-namespace management {
+namespace business { namespace management {
 
-    class ManagementServer : public Server {
+    class ManagementServer : public core::Server {
     public:
-        explicit ManagementServer(const ServerConfig &config);
+        explicit ManagementServer(const core::ServerConfig &config);
 
-        void onClientConnection(ClientSession *client) override;
+        void onClientConnection(core::ClientSession *client) override;
+        void onClientDisconnection(core::ClientSession *client) override;
         void run() override;
     };
 
-}
+}}
 
 #endif //__OPEN_CAROM3D_SERVER_MANAGEMENT_SERVER_H__

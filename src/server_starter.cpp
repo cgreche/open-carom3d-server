@@ -2,28 +2,36 @@
 // Created by CGR on 13/05/2020.
 //
 
-#include <business/server_service.h>
+#include <business/service/server_service.h>
 #include <business/management_server/management_server.h>
 #include <business/game_server/game_server.h>
 
 #include <thread>
 #include <iostream>
 
-void runManagementServer() {
-    //Change it to your Internet IP
-    ServerConfig managementServerConfig = {"127.0.0.1", 9882};
-    ServerConfig gameServer1Config = {"127.0.0.1", 9883};
+using namespace business::management;
+using namespace core;
 
-    management::ManagementServer managementServer(managementServerConfig);
+//Change it to your Internet IP/Host
+#define HOST "127.0.0.1"
+
+void runManagementServer() {
+    ServerConfig managementServerConfig = {HOST, 9882};
+    ServerConfig gameServer1Config = {HOST, 9883};
+
+    ManagementServer managementServer(managementServerConfig);
     business::ServerService::getInstance().startServer(gameServer1Config);
 
     managementServer.run();
 }
 
 int main(int argc, char *argv[]) {
-    printf("Initializing...\n");
+    printf("Initializing Open Carom3D Server...\n");
+
     std::thread servers(runManagementServer);
     servers.detach();
+
+    printf("Open Carom3D Server initialized successfully.\n");
 
     char command[256];
     std::cin.getline (command,256);

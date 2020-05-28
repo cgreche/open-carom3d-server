@@ -11,40 +11,47 @@
 #include "messaging/crypto.h"
 #include "action.h"
 
-class Server;
+namespace core {
 
-class ClientSession {
-    Server &m_server;
-    int m_sessionId;
-    nettools::ntClient &m_ntClient;
-    std::vector<char> m_unparsedData;
-    CryptoContext m_inDataCryptoCtx;
-    CryptoContext m_outDataCryptoCtx;
-    std::vector<ActionData> m_pendingActions;
+    class Server;
 
-public:
-    ClientSession(nettools::ntClient &ntClient, Server &server);
+    class ClientSession {
+        Server &m_server;
+        int m_sessionId;
+        nettools::ntClient &m_ntClient;
+        std::vector<char> m_unparsedData;
+        CryptoContext m_inDataCryptoCtx;
+        CryptoContext m_outDataCryptoCtx;
+        std::vector<ActionData> m_pendingActions;
 
-    void appendUnparsedData(unsigned char data[], unsigned int dataLen) {
-        m_unparsedData.insert(m_unparsedData.end(), data, data + dataLen);
-    }
-    void appendActions(std::vector<ActionData> actionDatas) {
-        m_pendingActions.insert(m_pendingActions.end(), actionDatas.begin(), actionDatas.end());
+    public:
+        ClientSession(nettools::ntClient &ntClient, Server &server);
+
+        void appendUnparsedData(unsigned char data[], unsigned int dataLen) {
+            m_unparsedData.insert(m_unparsedData.end(), data, data + dataLen);
+        }
+
+        void appendActions(std::vector<ActionData> actionDatas) {
+            m_pendingActions.insert(m_pendingActions.end(), actionDatas.begin(), actionDatas.end());
+        };
+
+        CryptoContext &inDataCryptoCtx() { return m_inDataCryptoCtx; }
+
+        CryptoContext &outDataCryptoCtx() { return m_outDataCryptoCtx; }
+
+        const std::vector<ActionData> &pendingActions() const { return m_pendingActions; }
+
+        void clearPendingActions() {
+            if (!m_pendingActions.empty())
+                m_pendingActions.clear();
+        }
+
+        void sendAction(const ActionData &action);
+
+        int sessionId() const { return m_sessionId; }
+        Server& server() const { return m_server; }
     };
 
-    CryptoContext& inDataCryptoCtx() { return m_inDataCryptoCtx; }
-    CryptoContext& outDataCryptoCtx() { return m_outDataCryptoCtx; }
-
-    const std::vector<ActionData>& pendingActions() const { return m_pendingActions; }
-
-    void clearPendingActions() {
-        if(!m_pendingActions.empty())
-            m_pendingActions.clear();
-    }
-
-    void sendAction(ActionData &action);
-
-    int sessionId() const { return m_sessionId; }
-};
+}
 
 #endif //__OPEN_CAROM3D_SERVER_CLIENTSESSION_H__

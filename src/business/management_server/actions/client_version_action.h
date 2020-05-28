@@ -5,17 +5,17 @@
 #ifndef __OPEN_CAROM3D_SERVER_CLIENT_VERSION_ACTION_H__
 #define __OPEN_CAROM3D_SERVER_CLIENT_VERSION_ACTION_H__
 
-#include "core/server/action.h"
+#include <business/util/abstract_action.h>
 
-namespace management {
+namespace business { namespace management {
 
     class ClientVersionAction : public AbstractAction<const char> {
     public:
-        bool validate(ActionData &action) override;
+        bool validate(const ActionData &action) override;
 
-        void execute(ActionData &action, ClientSession &client, const char *data) override;
+        void execute(const ActionData &action, User &user, const char *data) override;
     };
 
-}
+}}
 
 #endif //__OPEN_CAROM3D_SERVER_CLIENT_VERSION_ACTION_H__
