@@ -78,8 +78,13 @@ namespace business {
 
         //TODO(CGR): process login result
         // If login result == 0
-        sendBlackBoardMessage(user, L"Welcome to Open Carom3D (v 0.2.0 Alpha)");
+<<<<<<< HEAD
+        sendBlackBoardMessage(client, L"Welcome to Open Carom3D (v 0.2.0 Alpha)");
+        sendElectronicPanelMessage(client, L"Hello World");
+=======
+        sendBlackBoardMessage(user, L"Welcome to Open Carom3D (v 0.1.0 Alpha)");
         sendElectronicPanelMessage(user, L"Hello World");
+>>>>>>> dev
 
         PlayerStats playerStats = {0};
         playerStats.country[0] = L'B';
