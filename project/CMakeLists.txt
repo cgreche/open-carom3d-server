@@ -7,10 +7,6 @@ include_directories(../src)
 include_directories(../src/core/lib)
 
 add_executable(open_carom3d_server
-        ../src/business/game_server/actions/join_channel_action.cpp
-        ../src/business/game_server/actions/join_channel_action.h
-        ../src/business/game_server/actions/login_action.cpp
-        ../src/business/game_server/actions/login_action.h
         ../src/business/game_server/actions.h
         ../src/business/game_server/game_server.cpp
         ../src/business/game_server/game_server.h

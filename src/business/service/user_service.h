@@ -30,13 +30,14 @@ namespace business {
     public:
         static UserService &getInstance();
 
-        void loginUser(User& user, const wchar_t *acocuntId, const wchar_t *accountPassword);
+        void loginUser(User& user, const wchar_t *acocuntId, const wchar_t *accountPassword, const wchar_t *preferredLanguage);
         void logoutUser(User &user);
         User* createUserSession(core::ClientSession &clientSession);
         User *getUser(core::ClientSession &clientSession);
 
         Channel *joinChannel(User &user, const wchar_t *channelName, bool createIfNotExists);
         Room *createRoom(User &user, const CreateRoomActionData &createRoomActionData);
+		void sendNotifyMessage(User& user, const wchar_t* message);
         Room *joinRoom(User &user, const wchar_t* roomTitle, const wchar_t* roomPassword);
         void exitRoom(User &user);
         void joinRoomSlot(User& user, int slot);

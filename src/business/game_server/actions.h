@@ -9,11 +9,25 @@
 
 namespace business {
 
+	class LoginAction : public AbstractAction<LoginActionData> {
+	public:
+		void execute(const ActionData& action, User& user, const LoginActionData* data) override {
+			UserService::getInstance().loginUser(user, data->username, data->password, data->country);
+		}
+	};
+
     class CreateRoomAction : public AbstractAction<CreateRoomActionData> {
         void execute(const ActionData &action, User &user, const CreateRoomActionData *data) override {
             UserService::getInstance().createRoom(user, *data);
         }
     };
+
+	class JoinChannelAction : public AbstractAction<wchar_t> {
+	public:
+		void execute(const ActionData& action, User& user, const wchar_t* data) override {
+			UserService::getInstance().joinChannel(user, data, false);
+		}
+	};
 
     class JoinRoomAction : public AbstractAction<JoinRoomActionData> {
         void execute(const ActionData &action, User &user, const JoinRoomActionData *data) override {
@@ -24,7 +38,7 @@ namespace business {
     class ChannelMessageAction : public AbstractAction<wchar_t> {
         bool validate(const ActionData &action) override {
             return true;
-        }
+         }
 
         void execute(const ActionData &action, User &user, const wchar_t *message) override {
             //TODO(CGR): move to UserService

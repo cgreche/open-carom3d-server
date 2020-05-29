@@ -6,9 +6,7 @@
 #include "business/entity/room.h"
 #include <business/service/channel_service.h>
 #include <business/service/user_service.h>
-#include <business/game_server/actions/join_channel_action.h>
 #include <business/service/room_service.h>
-#include "actions/login_action.h"
 #include "game_server.h"
 #include "actions.h"
 
