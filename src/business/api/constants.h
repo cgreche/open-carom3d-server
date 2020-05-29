@@ -17,6 +17,7 @@
 #define ROOM_SLOT_COUNT 30
 
 enum class SpotType {
+    LOGGED_OFF = 0,
     CHANNEL = 1,
     ROOM = 2,
     IN_GAME = 3
