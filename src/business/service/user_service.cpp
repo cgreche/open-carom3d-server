@@ -107,7 +107,7 @@ namespace business {
 		generatedChannelName += L"-1";
 
 		this->joinChannel(user, generatedChannelName.c_str(), true);
-
+        this->updateUserWithAllServerRooms(user);
     }
 
     void UserService::logoutUser(User &user) {
@@ -136,9 +136,6 @@ namespace business {
         gameInfo.difficulty = createRoomActionData.difficulty;
         gameInfo.caneys = createRoomActionData.caneys;
         Room* createdRoom = RoomService::getInstance().createRoom(&user, createRoomActionData.roomTitle, createRoomActionData.roomPassword, 10, gameInfo);
-        if(nullptr != createdRoom) {
-            notifyServerOfRoomCreation(*user.server(), *createdRoom);
-        }
         return createdRoom;
     }
 
@@ -151,10 +148,7 @@ namespace business {
 		//TODO(CGR): check if room has password
 
 		this->removeUserFromCurrentSpot(user);
-
         RoomService::getInstance().insertUserIntoRoom(*room, user);
-        //TODO(CGR): process fail result
-        notifyChannelOfRoomPlayerCountUpdate(*user.server(), *room);
         return room;
     }
 
@@ -163,22 +157,7 @@ namespace business {
         if(!room)
             return;
 
-        User* roomMaster = room->roomMaster();
-
         RoomService::getInstance().removeUserFromRoom(*room, user);
-
-        if(room->usersInCount() != 0) {
-			//TODO(CGR): move to RoomService
-            notifyChannelOfRoomPlayerCountUpdate(*user.server(), *room);
-            if(roomMaster == &user)
-                notifyChannelOfRoomMasterUpdate(*user.server(), *room);
-        }
-
-        Channel* lastChannel = ChannelService::getInstance().getChannel(user.lastChannelName());
-        if(nullptr != lastChannel) {
-            ChannelService::getInstance().insertUserIntoChannel(*lastChannel, user);
-            this->updateUserWithAllServerRooms(user);
-        }
     }
 
     void UserService::joinRoomSlot(User &user, int slot) {
@@ -212,25 +191,12 @@ namespace business {
         Room* room = user.roomIn();
         if(!room || room->roomMaster() != &user)
             return;
+
         User* userToKick = room->userInListIndex(userListIndex);
         if(!userToKick)
             return;
+
         RoomService::getInstance().removeUserFromRoom(*room, userListIndex);
-
-        //TODO(CGR): modularize
-        if(room->usersInCount() != 0) {
-            //TODO(CGR): move to RoomService
-            notifyChannelOfRoomPlayerCountUpdate(*user.server(), *room);
-            if(room->roomMaster() == userToKick)
-                notifyChannelOfRoomMasterUpdate(*user.server(), *room);
-        }
-
-        Channel* lastChannel = ChannelService::getInstance().getChannel(userToKick->lastChannelName());
-        if(nullptr != lastChannel) {
-            ChannelService::getInstance().insertUserIntoChannel(*lastChannel, *userToKick);
-            this->updateUserWithAllServerRooms(*userToKick);
-        }
-
     }
 
     void UserService::sendMessageToRoom(User &user, const wchar_t *message) {
@@ -252,10 +218,15 @@ namespace business {
         Room* room = user.roomIn();
         if(!room || room->roomMaster() != &user)
             return;
-        RoomService::getInstance().startGame(room);
+        RoomService::getInstance().startMatch(*room);
+    }
 
-        //TODO(CGR): check if game started
-        notifyChannelOfRoomStateUpdate(*user.server(), *room);
+    void UserService::matchFinished(User& user) {
+        Room* room = user.roomIn();
+        if(nullptr == room)
+            return;
+
+        RoomService::getInstance().userFinishedPlaying(*room, user);
     }
 
     void UserService::sendMatchEventInfo(User& user, const u8* data, u32 dataSize) {
@@ -264,8 +235,7 @@ namespace business {
             return;
 
         ActionData matchEventInfoAction(0x47, data, dataSize);
-        for(auto userListIndex : room->userListIndexes()) {
-            User* userIn = room->userInListIndex(userListIndex);
+        for(auto userIn : room->users()) {
             if(userIn != &user) {
                 ActionDispatcher::prepare()
                                     .action(matchEventInfoAction)
@@ -280,42 +250,8 @@ namespace business {
 		if(nullptr == room)
 			return;
 
-		room->setUserOutGame(user);
-
-		user.client().sendAction(ActionData(0x61));
-		if (room->inGameUserCount() == 0) {
-			room->setState(Room::RoomState::IDLE); //TODO(CGR): this should not be here...
-			//room->resetSlotPlayerIndexes();
-			RoomService::getInstance().updateSlotInfo(*room);
-
-			this->notifyChannelOfRoomStateUpdate(*user.server(), *room);
-		}
-
+        RoomService::getInstance().setUserOutOfGameScreen(*room, user);
 	}
-
-    //TODO(CGR): Move to ServerService?
-    void UserService::notifyServerOfRoomCreation(const GameServer& server, const Room& room) {
-        const Room::GameInfo& game = room.gameInfo();
-        RoomInfoActionData actionData;
-        actionData.roomId = room.id();
-        actionData.difficulty = game.difficulty;
-        ::wcsncpy(actionData.roomName, room.title(), ROOM_TITLE_MAX_LEN);
-        actionData.roomName[ROOM_TITLE_MAX_LEN] = L'\0';
-        actionData.playersIn = room.usersInCount();
-        actionData.maxPlayers = room.maxPlayers();
-        actionData.u = 3;
-        actionData.levelLimit = 10;
-        actionData.gameType = game.gameType;
-        actionData.roomType = game.roomType;
-        actionData.matchType = game.matchType;
-        actionData.roomState = room.inGame();
-        ::wcsncpy(actionData.roomMaster, room.roomMaster()->player()->name(), PLAYER_NAME_MAX_LEN);
-        actionData.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
-        actionData.straightWins = room.straightWins();
-        actionData.caneys = game.caneys;
-        ActionData action(0x2A, &actionData, sizeof(actionData));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
-    }
 
     void UserService::updateUserWithAllServerRooms(const User& user) {
         GameServer* gameServer = user.server();
@@ -344,41 +280,8 @@ namespace business {
             ActionDispatcher::prepare().action(roomInfoAction).to(UserDestination(user)).send();
         }
 
-        ActionData roomInfoAction(0x62);
-        ActionDispatcher::prepare().action(roomInfoAction).to(UserDestination(user)).send();
-    }
-
-    void UserService::notifyChannelOfRoomMasterUpdate(const GameServer& server, const Room& room) {
-        struct RoomUpdateInfo {
-            u32 roomId;
-            wchar_t roomMaster[PLAYER_NAME_MAX_LEN + 1];
-        } updateInfo;
-        User* roomMaster = room.roomMaster();
-        updateInfo.roomId = room.id();
-        ::wcsncpy(updateInfo.roomMaster, roomMaster ? roomMaster->player()->name() : L"", PLAYER_NAME_MAX_LEN);
-        updateInfo.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
-
-        ActionData action(0x2E, &updateInfo, sizeof(updateInfo));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
-    }
-
-    void UserService::notifyChannelOfRoomPlayerCountUpdate(const GameServer& server, const Room& room) {
-        struct RoomUpdateInfo {
-            u32 roomId;
-            int playerCount;
-        } updateInfo = { room.id(), room.usersInCount() };
-        ActionData action(0x2F, &updateInfo, sizeof(updateInfo));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
-    }
-
-    void UserService::notifyChannelOfRoomStateUpdate(const GameServer& server, const Room& room) {
-        struct RoomUpdateInfo {
-            u32 roomId;
-            int state;
-        } updateInfo = { room.id(), room.closed() };
-        int playerInCount = room.usersInCount();
-        ActionData action(0x30, &updateInfo, sizeof(updateInfo));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
+        ActionData roomInfoEndAction(0x62);
+        ActionDispatcher::prepare().action(roomInfoEndAction).to(UserDestination(user)).send();
     }
 
     void UserService::removeUserFromCurrentSpot(User& user) {

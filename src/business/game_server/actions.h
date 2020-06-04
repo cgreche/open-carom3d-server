@@ -9,6 +9,7 @@
 
 namespace business {
 
+    //0x01
 	class LoginAction : public AbstractAction<LoginActionData> {
 	public:
 		void execute(const ActionData& action, User& user, const LoginActionData* data) override {
@@ -61,11 +62,10 @@ namespace business {
         }
     };
 
+    //0x0A
 	class EndMatchAction : public AbstractAction<void> {
 		void execute(const ActionData& action, User& user, const void* data) override {
-			//0x50 forces player to exit room (set room state)
-			int state = 1;
-			user.client().sendAction(ActionData(0x50,&state,4));
+            UserService::getInstance().matchFinished(user);
 		}
 	};
 

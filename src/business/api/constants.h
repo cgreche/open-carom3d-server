@@ -23,4 +23,11 @@ enum class SpotType {
     IN_GAME = 3
 };
 
+enum MatchType {
+    MATCH_NORMAL = 0,
+    //TODO(CGR): complete
+    MATCH_CHALLENGE = 4,
+    MATCH_PRACTICE = 5
+};
+
 #endif //__OPEN_CAROM3D_SERVER_CONSTANTS_H__

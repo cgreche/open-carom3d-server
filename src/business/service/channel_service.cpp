@@ -74,7 +74,6 @@ namespace business {
             userIn->client().sendAction(channelUserAction);
         }
 
-
     }
 
     void ChannelService::removeUserFromChannel(Channel& channel, User &user) {

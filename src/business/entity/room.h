@@ -15,8 +15,6 @@
 
 namespace business {
 
-#define ROOM_MASTER_SLOT 0 //TODO(CGR): remove this, turn Room a little more general
-
     class Match;
 
     class Room : public UserSpot {
@@ -28,13 +26,20 @@ namespace business {
         };
 
         enum RoomState {
-            IDLE = 0,
+            IDLE = 1,
             IN_GAME = 2
         };
 
         struct SlotInfos {
             SlotState state[ROOM_SLOT_COUNT];
             int playerListIndex[ROOM_SLOT_COUNT];
+        };
+
+		struct RoomUser {
+            User *user;
+            int slot;
+            bool inGameScreen;
+			bool playing;
         };
 
         struct GameInfo {
@@ -46,21 +51,16 @@ namespace business {
         };
 
     private:
-        struct RoomPlayer {
-            User *user;
-            int slot;
-            bool inGame;
-        };
-
 		GameServer& m_server;
 
         u32 m_id;
         std::wstring m_title;
         std::wstring m_password;
-        std::vector<RoomPlayer> m_users;
-        SlotInfos m_slots{}; //TODO(CGR):
-        int m_playersIn{};
-        int m_maxPlayers;
+        std::vector<RoomUser> m_roomUsers;
+        SlotInfos m_slots;
+
+        int m_usersIn;
+        int m_maxUsers;
         GameInfo m_gameInfo;
         int m_straightWins;
 
@@ -68,11 +68,13 @@ namespace business {
         bool m_closed;
 
         Match *m_matchInfo;
-		int m_inGameUserCount;
+		int m_playingUserCount;
+        int m_inGameScreenUserCount;
 
         User *m_creator;
-        User *m_roomMaster;
-        std::vector<int> m_playerQueue;
+        int m_roomMasterListIndex;
+        std::vector<int> m_userQueue;
+		std::vector<User*> m_users;
 
         int getFreeListIndex() const;
         int geNextRoomMaster() const;
@@ -93,12 +95,14 @@ namespace business {
 
         bool isUserIn(const wchar_t* userName) override;
 
+		unsigned int userCount() override;
+
         //Room specific
         int setUserToSlot(int slot, int userListIndex);
-        int setUserToSlot(int slot, User &user);
-        int freeSlot(int slot) { return setUserToSlot(slot, -1); }
+        int setUserToSlot(User& user, int slot);
+        int freeSlot(int slot) { return setUserToSlot(-1, slot); }
         int setSlotState(int slot, Room::SlotState state);
-		void resetSlotPlayerIndexes();
+        int setSlotStates(Room::SlotState state[ROOM_SLOT_COUNT]);
 
         int updateRoomMaster();
 
@@ -116,11 +120,13 @@ namespace business {
         u32 id() const { return m_id; }
         const wchar_t *title() const { return m_title.c_str(); }
         const wchar_t *password() const { return m_password.c_str(); }
-        User *roomMaster() const { return m_roomMaster; }
-        int usersInCount() const { return m_playersIn; }
-        int maxPlayers() const { return m_maxPlayers; }
+        User *roomMaster() const { return m_roomMasterListIndex != -1 ? m_roomUsers[m_roomMasterListIndex].user : nullptr; }
+        int roomMasterListIndex() const { return m_roomMasterListIndex;  }
+        int usersInCount() const { return m_usersIn; }
+        int maxPlayers() const { return m_maxUsers; }
         const GameInfo& gameInfo() const { return m_gameInfo; }
-        const std::vector<int>& userListIndexes() const { return m_playerQueue; }
+        const std::vector<int>& userQueue() const { return m_userQueue; }
+        const std::vector<User*> users() const { return m_users; }
         User* userInListIndex(int listIndex) const;
         int straightWins() const { return m_straightWins; }
         RoomState state() const { return m_state; }
@@ -130,12 +136,16 @@ namespace business {
 
         bool inGame() const { return m_state == RoomState::IN_GAME; }
 
-        u32 startGame();
-		void setUserOutGame(User& user);
+        u32 startMatch();
+        u32 endMatch();
+        void setUserFinishedPlaying(User& user);
+		void setUserOutOfGameScreen(User& user);
 
-		int inGameUserCount() const { return m_inGameUserCount; }
+        int playingUserCount() const { return m_playingUserCount; }
+        int inGameScreenUserCount() const { return m_inGameScreenUserCount; }
 
         int resetUserFromSlot(int slot);
+        void resetUserFromSlots();
     };
 
 }

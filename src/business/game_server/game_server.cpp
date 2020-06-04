@@ -62,6 +62,19 @@ namespace business {
         m_users.push_back(user);
     }
 
+    void GameServer::onUnhandledClientAction(core::ClientSession* client, const ActionData& actionData) {
+        //TODO: Invalid Action
+        int a = actionData.id();
+        User* user = UserService::getInstance().getUser(*client);
+        if(!user || !user->player())
+            core::Server::onUnhandledClientAction(client, actionData);
+        else
+            printf("Unhandled client action: %S - %x - %d\n",
+                user->player()->name(),
+                actionData.id(),
+                actionData.data().size());
+    }
+
     void GameServer::onClientDisconnection(core::ClientSession *client) {
         Server::onClientDisconnection(client);
         User* user = UserService::getInstance().getUser(*client);

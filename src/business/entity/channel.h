@@ -27,6 +27,7 @@ namespace business {
         int insertUser(User& user) override;
         void removeUser(User& user) override;
         bool isUserIn(const wchar_t* userName) override;
+        unsigned int userCount() override;
 
         const wchar_t *name() const { return m_channelName.c_str(); }
 

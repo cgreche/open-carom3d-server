@@ -1,5 +1,5 @@
 //
-// Created by Camila on 17/05/2020.
+// Created by CGR on 17/05/2020.
 //
 
 #include <core/server/client_session.h>

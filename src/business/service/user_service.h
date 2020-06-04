@@ -47,14 +47,12 @@ namespace business {
         void kickUserFromRoom(User& user, int userListIndex);
         void sendMessageToRoom(User& user, const wchar_t* message);
         void startMatch(User& user);
+        void matchFinished(User& user);
         void sendMatchEventInfo(User& user, const u8* data, u32 dataSize);
-		void requestMatchMakerScreen(User& user);
+        void requestMatchMakerScreen(User& user);
 
         //
         void notifyServerOfRoomCreation(const GameServer& server, const Room& room);
-        void notifyChannelOfRoomMasterUpdate(const GameServer& server, const Room& room);
-        void notifyChannelOfRoomPlayerCountUpdate(const GameServer &server, const Room &room);
-        void notifyChannelOfRoomStateUpdate(const GameServer &server, const Room &room);
         void updateUserWithAllServerRooms(const User& user);
 
 		//Utils

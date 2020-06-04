@@ -27,6 +27,7 @@ add_executable(open_carom3d_server
         ../src/business/entity/player.cpp
         ../src/business/entity/player.h
         ../src/business/entity/room.cpp
+        ../src/business/entity/room.data.cpp
         ../src/business/entity/room.h
         ../src/business/entity/user.cpp
         ../src/business/entity/user.h

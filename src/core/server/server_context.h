@@ -43,10 +43,9 @@ namespace core {
 
         void setActionMap(std::map<int, Action *> *actionMap);
 
-        virtual void onClientConnection(ClientSession *client);
-
-        virtual void onClientAction(ClientSession *client, ActionData &actionData) {}
-
+        virtual void onClientConnection(ClientSession* client);
+        virtual void onClientAction(ClientSession* client, const ActionData& actionData);
+        virtual void onUnhandledClientAction(ClientSession* client, const ActionData& actionData);
         virtual void onClientDisconnection(ClientSession *client);
 
         const char *hostname() const { return m_config.host.c_str(); }

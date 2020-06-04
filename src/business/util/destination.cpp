@@ -55,8 +55,7 @@ namespace business {
     }
 
     void RoomDestination::send(std::list<core::ActionData *> &actions) {
-        for (auto userListIndex : m_room.userListIndexes()) {
-            User *user = m_room.userInListIndex(userListIndex);
+        for (auto user : m_room.users()) {
             for (auto action : actions)
                 user->client().sendAction(*action);
         }

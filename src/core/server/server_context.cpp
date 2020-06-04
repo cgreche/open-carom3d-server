@@ -48,20 +48,29 @@ namespace core {
             return;
 
         for(auto actionData : actions) {
-            Action* action = (*m_actionMap)[actionData.id()];
-            if(action != nullptr) {
-                if (action->validate(actionData)) {
-                    action->execute(actionData, *client);
-                }
-            }
-            else {
-                //TODO: Invalid Action
-                int a = actionData.id();
-                printf("Unhandled action: %x - %d\n", a, actionData.data().size());
-            }
+            onClientAction(client, actionData);
         }
         client->clearPendingActions();
     }
+
+    void Server::onClientAction(ClientSession* client, const ActionData& actionData) {
+        Action* action = (*m_actionMap)[actionData.id()];
+        if(action != nullptr) {
+            if(action->validate(actionData)) {
+                action->execute(actionData, *client);
+            }
+        }
+        else {
+            onUnhandledClientAction(client, actionData);
+        }
+    }
+
+    void Server::onUnhandledClientAction(ClientSession *client, const ActionData& actionData) {
+        //TODO: Invalid Action
+        int a = actionData.id();
+        printf("Unhandled action: %x - %d\n", a, actionData.data().size());
+    }
+
 
     void Server::disconnectClient(ClientSession *client) {
         //TODO

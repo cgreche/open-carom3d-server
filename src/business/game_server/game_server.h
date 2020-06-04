@@ -14,6 +14,7 @@ namespace business {
 
     class User;
     class Room;
+    using core::ActionData;
 
     class GameServer : public core::Server {
         std::list<User*> m_users;
@@ -21,7 +22,10 @@ namespace business {
 
     public:
         explicit GameServer(const core::ServerConfig &config);
+       
         void onClientConnection(core::ClientSession *client) override;
+        void onUnhandledClientAction(core::ClientSession* client, const ActionData& actionData) override;
+
         void onClientDisconnection(core::ClientSession *client) override;
 
         int createRoom(const wchar_t* title, User* user, int maxPlayers, const Room::GameInfo& gameInfo, Room** pRetRoom);

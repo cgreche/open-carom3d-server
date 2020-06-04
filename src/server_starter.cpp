@@ -13,7 +13,7 @@ using namespace business::management;
 using namespace core;
 
 //Change it to your Internet IP/Host
-#define HOST "127.0.0.1"
+#define HOST "192.168.15.10"
 
 void runManagementServer() {
     ServerConfig managementServerConfig = {HOST, 9882};
