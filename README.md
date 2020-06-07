@@ -45,7 +45,7 @@ YOUR_EXPOSED_IP caromengopening.neoact.com
 Changelog:
 
 v0.2.0 - ALPHA:
-^ Major refactoring;
+~ Major refactoring;
 + Rooms;
 + Matches.
 
