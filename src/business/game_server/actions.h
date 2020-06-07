@@ -134,7 +134,7 @@ namespace business {
     };
 
     class RoomMessageAction : public AbstractAction<wchar_t> {
-        void execute(const ActionData &action, User &user, const wchar_t *data) override {
+        void execute(const ActionData& action, User& user, const wchar_t* data) override {
             UserService::getInstance().sendMessageToRoom(user, data);
         }
     };

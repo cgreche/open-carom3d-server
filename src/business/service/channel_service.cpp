@@ -83,7 +83,7 @@ namespace business {
         //TODO(CGR): modularize
         unsigned long accountNumber = user.account()->id();
         ActionData userLeftChannelAction(0x1F, reinterpret_cast<unsigned char *>(&accountNumber), 4);
-        ActionDispatcher::prepare().action(userLeftChannelAction).to(ChannelDestination(channel)).send();
+        ActionDispatcher::prepare().action(userLeftChannelAction).send(ChannelDestination(channel));
     }
 
     void ChannelService::sendUserMessage(Channel& channel, User &user, const wchar_t *message) {
@@ -92,7 +92,7 @@ namespace business {
         ::wcscpy((wchar_t *) &_data[4], message);
 
         ActionData actionData(0x21, (unsigned char *) _data, (::wcslen(message) + 1) * 2 + 4);
-        ActionDispatcher::prepare().action(actionData).to(ChannelDestination(channel)).send();
+        ActionDispatcher::prepare().action(actionData).send(ChannelDestination(channel));
 
         delete[] _data;
     }

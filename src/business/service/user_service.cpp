@@ -79,7 +79,7 @@ namespace business {
         if(nullptr != loggedUser) {
             //Send message to user;
             ActionData disconnectAction(0x35);
-            ActionDispatcher::prepare().action(disconnectAction).to(UserDestination(*loggedUser)).send();
+            ActionDispatcher::prepare().action(disconnectAction).send(UserDestination(*loggedUser));
 
             loggedUser->server()->disconnectClient(&loggedUser->client());
         }
@@ -253,8 +253,7 @@ namespace business {
             if(userIn != &user) {
                 ActionDispatcher::prepare()
                                     .action(matchEventInfoAction)
-                                    .to(UserDestination(*userIn))
-                                    .send();
+                                    .send(UserDestination(*userIn));
             }
         }
     }
@@ -291,11 +290,11 @@ namespace business {
             actionData.caneys = game.caneys;
 
             ActionData roomInfoAction(0x2B, &actionData, sizeof(actionData));
-            ActionDispatcher::prepare().action(roomInfoAction).to(UserDestination(user)).send();
+            ActionDispatcher::prepare().action(roomInfoAction).send(UserDestination(user));
         }
 
         ActionData roomInfoEndAction(0x62);
-        ActionDispatcher::prepare().action(roomInfoEndAction).to(UserDestination(user)).send();
+        ActionDispatcher::prepare().action(roomInfoEndAction).send(UserDestination(user));
     }
 
     void UserService::removeUserFromCurrentSpot(User& user) {

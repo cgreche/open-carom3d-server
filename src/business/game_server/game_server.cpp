@@ -85,7 +85,6 @@ namespace business {
                 RoomService::getInstance().removeUserFromRoom(*(Room*)spot, *user);
         }
         UserService::getInstance().logoutUser(*user);
-        //TODO(CGR): Remove User
     }
 
     int GameServer::createRoom(const wchar_t *title, User *user, int maxPlayers, const Room::GameInfo &gameInfo, Room **pRetRoom) {

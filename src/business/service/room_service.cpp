@@ -137,11 +137,10 @@ namespace business {
         ActionDispatcher::prepare()
                 .action(playerInfoActionData)
                 .action(playerItemInfosActionData)
-                .to(UserDestination(*user))
-                .send();
+                .send(UserDestination(*user));
 
         ActionData playerListEnd(0x63, nullptr, 0);
-        ActionDispatcher::prepare().action(playerListEnd).to(UserDestination(*user)).send();
+        ActionDispatcher::prepare().action(playerListEnd).send(UserDestination(*user));
 
         notifyServerOfRoomCreation(newRoom->server(), *newRoom);
         return newRoom;
@@ -220,8 +219,8 @@ namespace business {
             RoomPlayerItemData item = {0};
             ActionData playerItemInfosActionData(0x71, &item, sizeof(item));
 
-            ActionDispatcher::prepare().action(playerInfoActionData).to(UserDestination(user)).send();
-            ActionDispatcher::prepare().action(playerItemInfosActionData).to(UserDestination(user)).send();
+            ActionDispatcher::prepare().action(playerInfoActionData).send(UserDestination(user));
+            ActionDispatcher::prepare().action(playerItemInfosActionData).send(UserDestination(user));
         }
 
         RoomPlayerData roomPlayer = {0};
@@ -261,11 +260,10 @@ namespace business {
         ActionDispatcher::prepare()
                             .action(playerInfoActionData)
                             .action(playerItemInfosActionData)
-                            .to(RoomDestination(room))
-                            .send();
+                            .send(RoomDestination(room));
 
         ActionData playerListEnd(0x63, nullptr, 0);
-        ActionDispatcher::prepare().action(playerListEnd).to(UserDestination(user)).send();
+        ActionDispatcher::prepare().action(playerListEnd).send(UserDestination(user));
 
         //TODO(CGR): process fail result
         notifyServerOfRoomPlayerCountUpdate(*user.server(), room);
@@ -294,7 +292,7 @@ namespace business {
         updateRoom(room);
 
 		ActionData exitRoomAction(0x26);
-		ActionDispatcher::prepare().action(exitRoomAction).to(UserDestination(*user)).send();
+		ActionDispatcher::prepare().action(exitRoomAction).send(UserDestination(*user));
 
 		if (room.usersInCount() != 0) {
 			if (currentRoomMaster != newRoomMaster) {
@@ -302,13 +300,13 @@ namespace business {
                     updateSlotInfo(room);
 
 				ActionData changeRoomMasterAction(0x32, newRoomMaster->player()->name(), (PLAYER_NAME_MAX_LEN + 1)*2);
-				ActionDispatcher::prepare().action(changeRoomMasterAction).to(RoomDestination(room)).send();
+				ActionDispatcher::prepare().action(changeRoomMasterAction).send(RoomDestination(room));
 				notifyServerOfRoomMasterChange(room.server(), room);
 			}
 
 			int listIndex = userListIndex;
 			ActionData userExitedRoomAction(0x28, &listIndex, 4);
-			ActionDispatcher::prepare().action(userExitedRoomAction).to(RoomDestination(room)).send();
+			ActionDispatcher::prepare().action(userExitedRoomAction).send(RoomDestination(room));
 		}
 		else {
 			int roomId = room.id();
@@ -317,7 +315,7 @@ namespace business {
 			server.destroyRoom(room);
 
 			ActionData destroyRoomAction(0x2D, &roomId, 4);
-			ActionDispatcher::prepare().action(destroyRoomAction).to(ServerDestination(server, 1)).send();
+			ActionDispatcher::prepare().action(destroyRoomAction).send(ServerDestination(server, 1));
 		}
 
         Channel* lastChannel = ChannelService::getInstance().getChannel(user->lastChannelName());
@@ -362,7 +360,7 @@ namespace business {
         int slotState = room.getSlotState(slot);
         SlotModificationResultData modificationResultData = {listIndex, slot, (int)slotState};
         ActionData slotStateActionData(0x4D, (u8 *) &modificationResultData, sizeof(modificationResultData));
-        ActionDispatcher::prepare().action(slotStateActionData).to(RoomDestination(room)).send();
+        ActionDispatcher::prepare().action(slotStateActionData).send(RoomDestination(room));
     }
 
 	void RoomService::updateSlotInfo(Room& room) {
@@ -373,7 +371,7 @@ namespace business {
 			slotInfoData.playerListIndex[i] = slotInfos.playerListIndex[i];
 		}
 		ActionData slotInfoActionData(0x51, &slotInfoData, sizeof(slotInfoData));
-		ActionDispatcher::prepare().action(slotInfoActionData).to(RoomDestination(room)).send();
+		ActionDispatcher::prepare().action(slotInfoActionData).send(RoomDestination(room));
 	}
 
     void RoomService::changeRoomState(Room &room, bool open) {
@@ -394,7 +392,7 @@ namespace business {
             roomUserMessageData.userListIndex = userListIndex;
             ::wcscpy(roomUserMessageData.message, message);
             ActionData roomUserMessageActionData(0x55, &roomUserMessageData, 4+(::wcslen(message)+1)*2);
-            ActionDispatcher::prepare().action(roomUserMessageActionData).to(RoomDestination(room)).send();
+            ActionDispatcher::prepare().action(roomUserMessageActionData).send(RoomDestination(room));
         }
     }
 
@@ -404,7 +402,7 @@ namespace business {
         std::srand(std::time(nullptr)); // use current time as seed for random generator
         int startRandomSeed = std::rand();
         ActionData matchStartedActionData(0x33, (u8 *) &startRandomSeed, 4);
-        ActionDispatcher::prepare().action(matchStartedActionData).to(RoomDestination(room)).send();
+        ActionDispatcher::prepare().action(matchStartedActionData).send(RoomDestination(room));
 
         //TODO(CGR): check if game started successfully
         notifyServerOfRoomStateUpdate(room.server(), room);
@@ -421,7 +419,7 @@ namespace business {
             //0x50 forces player to exit room (set room state)
             int state = Room::RoomState::IDLE;
             ActionData setRoomStateActionData(0x50, &state, 4);
-            ActionDispatcher::prepare().action(setRoomStateActionData).to(RoomDestination(room)).send();
+            ActionDispatcher::prepare().action(setRoomStateActionData).send(RoomDestination(room));
 
             this->notifyServerOfRoomStateUpdate(*user.server(), room);
         }
@@ -460,7 +458,7 @@ namespace business {
         actionData.straightWins = room.straightWins();
         actionData.caneys = game.caneys;
         ActionData action(0x2A, &actionData, sizeof(actionData));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
+        ActionDispatcher::prepare().action(action).send(ServerDestination(server, 1));
     }
 
 	void RoomService::notifyServerOfRoomMasterChange(const GameServer& server, const Room& room) {
@@ -474,7 +472,7 @@ namespace business {
 		updateInfo.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
 
 		ActionData action(0x2E, &updateInfo, sizeof(updateInfo));
-		ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
+		ActionDispatcher::prepare().action(action).send(ServerDestination(server, 1));
 	}
 
     void RoomService::notifyServerOfRoomPlayerCountUpdate(const GameServer& server, const Room& room) {
@@ -483,7 +481,7 @@ namespace business {
             int playerCount;
         } updateInfo = { room.id(), room.usersInCount() };
         ActionData action(0x2F, &updateInfo, sizeof(updateInfo));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
+        ActionDispatcher::prepare().action(action).send(ServerDestination(server, 1));
     }
 
     void RoomService::notifyServerOfRoomStateUpdate(const GameServer& server, const Room& room) {
@@ -493,7 +491,7 @@ namespace business {
         } updateInfo = { room.id(), room.closed() };
         int playerInCount = room.usersInCount();
         ActionData action(0x30, &updateInfo, sizeof(updateInfo));
-        ActionDispatcher::prepare().action(action).to(ServerDestination(server, 1)).send();
+        ActionDispatcher::prepare().action(action).send(ServerDestination(server, 1));
     }
 
     void RoomService::resetRoom(Room& room) {

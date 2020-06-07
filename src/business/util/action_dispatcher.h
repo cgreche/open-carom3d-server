@@ -17,13 +17,11 @@ namespace core {
     class ActionDispatcher {
     protected:
         std::list<ActionData*> m_actions;
-        Destination *m_destination;
 
     public:
         static ActionDispatcher& prepare();
         ActionDispatcher &action(ActionData& data);
-        ActionDispatcher &to(const Destination &destination);
-        void send();
+        void send(const Destination& destination);
     };
 }
 
