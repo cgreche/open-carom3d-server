@@ -3,8 +3,13 @@
 
 namespace nettools {
 
-	ntClient::ntClient() {
-	}
+    ntClient::ntClient() {
+    }
+
+    ntClient::ntClient(ntEventHandler* eventHandler) {
+        this->setEventHandler(eventHandler);
+    }
+
 
 	NT_ERROR ntClient::connect(const char * hostname, u16 port) {
 		m_address.sin_family = AF_INET;

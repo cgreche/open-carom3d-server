@@ -36,33 +36,47 @@ namespace nettools {
 			}
 		} while (result == NTERR_SUCCESS);
 
-		std::vector<ntConnection*>::iterator it = m_clients.begin();
-		for(; it!= m_clients.end(); ) {
+		std::list<ntConnection*>::iterator it = m_clients.begin();
+		for(; it != m_clients.end(); ) {
 		    ntConnection* conn = *it;
 			u8 data[MAX_PACKET_SIZE];
 			u32 recvd;
 			result = _recv(conn->socket(), data, MAX_PACKET_SIZE, &recvd);
 			if (result == NTERR_SUCCESS) {
 				if (m_eventHandler) {
-					if (recvd == 0) {
-                        //TODO(CGR): m_clients must be of ntClient type
-                        m_eventHandler->onClientDisconnection((ntClient *) conn);
+                    if(recvd == 0) {
+                        m_eventHandler->onClientDisconnection((ntClient*)*it);
                         it = m_clients.erase(it);
                         continue;
                     } else {
-                        //TODO(CGR): m_Clients myst be of ntClient type
+                        //TODO(CGR): m_Clients must be of ntClient type
                         m_eventHandler->onClientDataReceived((ntClient *) conn, data, recvd);
                     }
 				}
 			}
-			++it;
+
+            ++it;
 		}
 		return NTERR_SUCCESS;
 	}
+
+    NT_ERROR ntServer::disconnect(ntConnection *connection) {
+        std::list<ntConnection*>::iterator it = std::find(m_clients.begin(), m_clients.end(), connection);
+        if(it != m_clients.end()) {
+            m_eventHandler->onClientDisconnection((ntClient*)connection);
+            m_clients.erase(it);
+            return connection->close();
+        }
+        return NTERR_SUCCESS;
+    }
 
 	NT_ERROR ntServer::close() {
 		ntConnection::close();
 		return NTERR_SUCCESS;
 	}
+
+    unsigned int ntServer::connectionCount() const {
+        return m_clients.size();
+    }
 
 }
