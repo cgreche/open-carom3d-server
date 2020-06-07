@@ -74,6 +74,18 @@ namespace business {
 		Account* account = AccountService::getInstance().logAccount(accountId, accountPassword);
 		if (account == nullptr)
 			return;
+
+        User* loggedUser = m_usersAccounts[account];
+        if(nullptr != loggedUser) {
+            //Send message to user;
+            ActionData disconnectAction(0x35);
+            ActionDispatcher::prepare().action(disconnectAction).to(UserDestination(*loggedUser)).send();
+
+            loggedUser->server()->disconnectClient(&loggedUser->client());
+        }
+
+        m_usersAccounts[account] = &user;
+
 		printf("Player logged in: %ws", account->name());
 		user.setAccount(account);
 		user.setPlayer(account->player());
@@ -111,6 +123,8 @@ namespace business {
     }
 
     void UserService::logoutUser(User &user) {
+        if(nullptr != user.account())
+            m_usersAccounts[user.account()] = nullptr;
         m_clientsUsers.erase(user.client().sessionId());
     }
 

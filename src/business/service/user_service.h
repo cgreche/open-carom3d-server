@@ -24,6 +24,7 @@ namespace business {
     class UserService {
 
         std::map<int, User *> m_clientsUsers;
+        std::map<Account*, User*> m_usersAccounts;
 
         void linkClientToUser(core::ClientSession &client, User &user);
 

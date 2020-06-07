@@ -13,24 +13,20 @@
 namespace business {
 
     class Account;
-
     class Player;
 
     class AccountService {
-        std::list<Account *> m_accounts;
-        std::list<Player *> m_players;
-        std::map<int, Account *> m_clientsAccounts;
-
-        Account *findAccount(const wchar_t *accountName);
 
     public:
         static AccountService &getInstance();
 
         Account *createAccount(const wchar_t *accountName, const wchar_t *accountPassword);
-
         Player *createPlayerFromAccount(Account &account);
-
         Account *logAccount(const wchar_t *accountName, const wchar_t *accountPassword);
+        Account* findAccount(const wchar_t* accountName);
+
+        Player* getPlayer(Account& account);
+
     };
 
 }

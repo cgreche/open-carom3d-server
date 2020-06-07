@@ -17,7 +17,7 @@ namespace core {
 
     class ClientSession {
         Server &m_server;
-        int m_sessionId;
+        u32 m_sessionId;
         nettools::ntClient &m_ntClient;
         std::vector<char> m_unparsedData;
         CryptoContext m_inDataCryptoCtx;
@@ -48,7 +48,8 @@ namespace core {
 
         void sendAction(const ActionData &action);
 
-        int sessionId() const { return m_sessionId; }
+        u32 sessionId() const { return m_sessionId; }
+        nettools::ntClient& ntClient() const { return m_ntClient; }
         Server& server() const { return m_server; }
     };
 

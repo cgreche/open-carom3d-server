@@ -16,10 +16,11 @@ namespace core {
     class Action;
 
     class Server {
+    protected:
         ServerConfig m_config;
-        MessageListener m_messageListener;
+        nettools::ntServer m_ntServer;
 
-        std::vector<ClientSession *> m_clients;
+        std::map<int, ClientSession *> m_clients;
 
         std::map<int, Action *> *m_actionMap;
 
@@ -28,8 +29,8 @@ namespace core {
         void removeClient(ClientSession *client);
 
     public:
-        //TODO: What is explicit?
         explicit Server(const ServerConfig &config);
+        virtual ~Server();
 
         void poll();
 

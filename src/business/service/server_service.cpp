@@ -12,9 +12,10 @@ namespace business {
     static ServerService g_serverService;
     static std::list<std::thread*> m_threads;
 
-    void runServer(Server& gameServer) {
+    //Argument needs to be a pointer (or use std::ref) for correct object pointing
+    void runServer(Server* gameServer) {
         for(;;)
-            gameServer.poll();
+            gameServer->poll();
     }
 
     ServerService &ServerService::getInstance() {
@@ -23,11 +24,11 @@ namespace business {
 
     Server *ServerService::startServer(const ServerConfig &serverConfig) {
         Server *server = new GameServer(serverConfig);
-        auto t = new std::thread(runServer, *server);
+        auto t = new std::thread(runServer, server);
         t->detach();
         m_threads.emplace_back(t);
         m_servers.emplace_back(server);
-        return nullptr;
+        return server;
     }
 
     void ServerService::poll() {

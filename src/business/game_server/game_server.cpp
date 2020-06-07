@@ -31,7 +31,6 @@ namespace business {
 
 //Action Sent to player: 0x4F (LG_BANUSER): TODO(CGR): what is this?
 
-
     static std::map<int, Action *> actions = {
             { LOGIN_ACTION, new LoginAction },
             { JOIN_CHANNEL_ACTION, new JoinChannelAction },
