@@ -26,7 +26,7 @@ namespace business {
 	class JoinChannelAction : public AbstractAction<wchar_t> {
 	public:
 		void execute(const ActionData& action, User& user, const wchar_t* data) override {
-			UserService::getInstance().joinChannel(user, data, false);
+			UserService::getInstance().joinChannel(user, data);
 		}
 	};
 

@@ -67,6 +67,13 @@ namespace business {
         long caneys;
     };
 
+    struct PrivateMessage {
+        wchar_t playerName[PLAYER_NAME_MAX_LEN + 1];
+        wchar_t message[];
+    };
+
+    //
+
     struct SlotModificationResultData {
         int listId;
         int slotNumber;

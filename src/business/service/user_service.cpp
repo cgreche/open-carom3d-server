@@ -118,7 +118,7 @@ namespace business {
 		generatedChannelName += preferredLanguage;
 		generatedChannelName += L"-1";
 
-		this->joinChannel(user, generatedChannelName.c_str(), true);
+		this->joinChannel(user, generatedChannelName.c_str());
         this->updateUserWithAllServerRooms(user);
     }
 
@@ -134,9 +134,9 @@ namespace business {
 	}
 
     //TODO: force joining somewhere (a similar channel)
-    Channel *UserService::joinChannel(User &user, const wchar_t *channelName, bool createIfNotExists) {
+    Channel *UserService::joinChannel(User &user, const wchar_t *channelName) {
 		this->removeUserFromCurrentSpot(user);
-        Channel *channel = ChannelService::getInstance().moveUserToChannel(&user, channelName, createIfNotExists);
+        Channel *channel = ChannelService::getInstance().moveUserToChannel(&user, channelName, true);
         return channel;
     }
 

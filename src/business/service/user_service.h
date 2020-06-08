@@ -36,7 +36,7 @@ namespace business {
         User* createUserSession(core::ClientSession &clientSession);
         User *getUser(core::ClientSession &clientSession);
 
-        Channel *joinChannel(User &user, const wchar_t *channelName, bool createIfNotExists);
+        Channel *joinChannel(User &user, const wchar_t *channelName);
         Room *createRoom(User &user, const CreateRoomActionData &createRoomActionData);
 		void sendNotifyMessage(User& user, const wchar_t* message);
         Room *joinRoom(User &user, const wchar_t* roomTitle, const wchar_t* roomPassword);

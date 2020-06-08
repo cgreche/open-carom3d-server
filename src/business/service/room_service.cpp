@@ -63,6 +63,7 @@ namespace business {
             //practice
         case 5:
             //TODO(CGR):
+            slotStatesLayout = NORMAL_GAME_SLOT_LAYOUT;
             break;
         default:
             break;
@@ -95,6 +96,9 @@ namespace business {
         }
         ActionData roomCreatedAction(0x25, &roomData, sizeof(roomData));
         user->client().sendAction(roomCreatedAction);
+
+        if(matchType == MATCH_CHALLENGE)
+            return newRoom;
 
         //TODO(CGR): room creation fail
 
