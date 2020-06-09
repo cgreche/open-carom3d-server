@@ -34,6 +34,8 @@ namespace business {
     }
 
     Channel *ChannelService::moveUserToChannel(User *user, const wchar_t *channelName, bool createIfNotExists) {
+        UserService::getInstance().removeUserFromCurrentSpot(*user);
+
         Channel *channel = getChannel(channelName);
         if (channel == nullptr) {
             if (!createIfNotExists)

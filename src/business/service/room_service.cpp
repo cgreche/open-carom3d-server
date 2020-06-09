@@ -97,9 +97,6 @@ namespace business {
         ActionData roomCreatedAction(0x25, &roomData, sizeof(roomData));
         user->client().sendAction(roomCreatedAction);
 
-        if(matchType == MATCH_CHALLENGE)
-            return newRoom;
-
         //TODO(CGR): room creation fail
 
         this->resetRoom(*newRoom);
@@ -322,11 +319,6 @@ namespace business {
 			ActionDispatcher::prepare().action(destroyRoomAction).send(ServerDestination(server, 1));
 		}
 
-        Channel* lastChannel = ChannelService::getInstance().getChannel(user->lastChannelName());
-        if(nullptr != lastChannel) {
-            ChannelService::getInstance().insertUserIntoChannel(*lastChannel, *user);
-            UserService::getInstance().updateUserWithAllServerRooms(*user);
-        }
     }
 
     void RoomService::setUserToSlot(Room& room, int slot, User* user) {

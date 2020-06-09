@@ -119,7 +119,6 @@ namespace business {
 		generatedChannelName += L"-1";
 
 		this->joinChannel(user, generatedChannelName.c_str());
-        this->updateUserWithAllServerRooms(user);
     }
 
     void UserService::logoutUser(User &user) {
@@ -137,6 +136,7 @@ namespace business {
     Channel *UserService::joinChannel(User &user, const wchar_t *channelName) {
 		this->removeUserFromCurrentSpot(user);
         Channel *channel = ChannelService::getInstance().moveUserToChannel(&user, channelName, true);
+        this->updateUserWithAllServerRooms(user);
         return channel;
     }
 
@@ -170,8 +170,7 @@ namespace business {
         Room* room = user.roomIn();
         if(!room)
             return;
-
-        RoomService::getInstance().removeUserFromRoom(*room, user);
+        this->joinChannel(user, user.lastChannelName());
     }
 
     void UserService::joinRoomSlot(User &user, int slot) {
@@ -210,7 +209,7 @@ namespace business {
         if(!userToKick)
             return;
 
-        RoomService::getInstance().removeUserFromRoom(*room, userListIndex);
+        this->joinChannel(*userToKick, userToKick->lastChannelName());
     }
 
     void UserService::sendMessageToRoom(User &user, const wchar_t *message) {
