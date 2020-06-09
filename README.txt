@@ -35,6 +35,7 @@ For remote connections (playing with friends), tell your friends to:
 -Download the official Carom3D 5.31 (Last official version) executable;
 -Edit their etc/hosts file, adding the following line at the end:
 YOUR_EXPOSED_IP caromengopening.neoact.com
+-Make sure there is not a ServerAddress folder in their Carom3D installation path;
 -Open carom.exe;
 -Click online;
 -Log in with any id/password;
