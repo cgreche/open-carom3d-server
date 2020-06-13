@@ -414,7 +414,7 @@ namespace business {
         if(room.playingUserCount() == 0) {
             room.setState(Room::RoomState::IDLE);
 
-            //0x50 forces player to exit room (set room state)
+            //0x50 forces player to exit room (set room state to client)
             int state = Room::RoomState::IDLE;
             ActionData setRoomStateActionData(0x50, &state, 4);
             ActionDispatcher::prepare().action(setRoomStateActionData).send(RoomDestination(room));
@@ -427,12 +427,12 @@ namespace business {
     void RoomService::setUserOutOfGameScreen(Room& room, User& user) {
         room.setUserOutOfGameScreen(user);
 
+        ActionData showRoomScreenActionData(0x61);
+        user.sendAction(showRoomScreenActionData);
+
         if(room.inGameScreenUserCount() == 0) {
             this->resetRoom(room);
         }
-
-        ActionData showRoomScreenActionData(0x61);
-        user.sendAction(showRoomScreenActionData);
     }
 
     //TODO(CGR): All following methods should be moved to ServerService?
@@ -498,6 +498,9 @@ namespace business {
     }
 
     void RoomService::updateRoom(Room& room) {
+        if(room.state() == Room::RoomState::IN_GAME)
+            return;
+
         bool needsUserUpdateNotification = room.getSlotUserListIndex(ROOM_MASTER_SLOT) == -1;
 
         room.setUserToSlot(room.roomMasterListIndex(), ROOM_MASTER_SLOT);

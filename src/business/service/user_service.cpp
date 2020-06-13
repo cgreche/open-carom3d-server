@@ -210,7 +210,7 @@ namespace business {
             this->startMatch(user);
 		}
 
-        //RoomService::getInstance().sendMessageToRoom(*room, user, message);
+        RoomService::getInstance().sendMessageToRoom(*room, user, message);
     }
 
     void UserService::startMatch(User& user) {
