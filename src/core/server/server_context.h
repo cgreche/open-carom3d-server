@@ -52,6 +52,8 @@ namespace core {
             auto it = m_clients.find(sessionId);
             return it != m_clients.end() ? it->second : nullptr;
         }
+
+        std::map<unsigned long, ClientSession*>& clients() { return m_clients; }
         virtual unsigned int clientsConnectedCount() { return m_clients.size(); }
 
     };

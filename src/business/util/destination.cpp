@@ -18,7 +18,9 @@ namespace business {
     }
 
     void ServerDestination::send(const std::list<core::ActionData *> &actions) {
-        for(auto user : m_server.users()) {
+        auto const &clients = ((GameServer&)m_server).clients();
+        for(auto const& client : clients) {
+            User* user = (User*)client.second;
             //TODO(CGR): transform values in non-literal constants
             int to = m_to;
             if(to != 0) {
