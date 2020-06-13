@@ -383,7 +383,7 @@ namespace business {
 #pragma pack(push, 1)
             struct RoomUserMessage {
                 int userListIndex;
-                wchar_t message[81];
+                wchar_t message[151];
             };
 #pragma pack(pop)
             RoomUserMessage roomUserMessageData;

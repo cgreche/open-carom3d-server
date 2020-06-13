@@ -143,6 +143,10 @@ namespace business {
     };
 
     class RoomMessageAction : public GameServerAction<wchar_t> {
+        bool validate(const ActionData& action) override {
+            return action.data().size() < (151*sizeof(wchar_t));
+        }
+
         void execute(const ActionData& action, User& user, const wchar_t* data) override {
             UserService::getInstance().sendMessageToRoom(user, data);
         }

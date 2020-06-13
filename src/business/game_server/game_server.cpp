@@ -69,11 +69,21 @@ namespace business {
             User& user = (User&)session;
             if(!user.player())
                 core::Carom3DProtocol::onUnhandledUserAction(session, actionData);
-            else
+            else {
                 printf("Unhandled client action: %S - %x - %d\n",
                     user.player()->name(),
                     actionData.id(),
                     actionData.data().size());
+                printf("Data: \n");
+                for(u8 byte : actionData.data()) {
+                    printf("%x ", byte);
+                }
+                printf("\n");
+                for(u8 byte : actionData.data()) {
+                    printf("%c ", byte <= 0x7F ? byte : ' ');
+                }
+                printf("\n\n");
+            }
         }
     };
 
