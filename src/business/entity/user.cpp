@@ -3,6 +3,7 @@
 //
 
 #include <core/server/client_session.h>
+#include <core/server/server_context.h>
 #include "account.h"
 #include "player.h"
 #include "user.h"
@@ -10,16 +11,11 @@
 
 namespace business {
 
-    User::User(core::ClientSession &session)
-        : m_clientSession(session) {
-        m_server = nullptr;
+    User::User(nettools::ntConnection& ntConnection, core::Server& server)
+        : Carom3DUserSession(ntConnection, server) {
         m_account = nullptr;
         m_player = nullptr;
         m_spot = nullptr;
-    }
-
-    void User::setServer(GameServer *server) {
-        m_server = server;
     }
 
     void User::setAccount(Account *account) {

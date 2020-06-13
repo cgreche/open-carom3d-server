@@ -2,11 +2,13 @@
 // Created by CGR on 15/05/2020.
 //
 
+#include <map>
 #include <business/entity/account.h>
-#include "business/entity/room.h"
+#include <business/entity/room.h>
 #include <business/service/channel_service.h>
 #include <business/service/user_service.h>
 #include <business/service/room_service.h>
+#include <core/server/carom3d/carom3d_protocol.h>
 #include "game_server.h"
 #include "actions.h"
 
@@ -49,42 +51,51 @@ namespace business {
             { ROOM_MESSAGE_ACTION, new RoomMessageAction },
     };
 
-    GameServer::GameServer(const ServerConfig &config)
-            : Server(config) {
-        this->setActionMap(&actions);
+
+    class GameServerProtocol : public core::Carom3DProtocol {
+    public:
+        GameServerProtocol() {
+            this->setUserActionMap(&actions);
+        }
+
+        core::ClientSession* createSession(nettools::ntConnection& ntClient, core::Server& server) {
+            return new User(ntClient, server);
+        }
+
+        void onUnhandledUserAction(core::Carom3DUserSession& session, const ActionData& actionData) {
+            //TODO: Invalid Action
+            User& user = (User&)session;
+            if(!user.player())
+                core::Carom3DProtocol::onUnhandledUserAction(session, actionData);
+            else
+                printf("Unhandled client action: %S - %x - %d\n",
+                    user.player()->name(),
+                    actionData.id(),
+                    actionData.data().size());
+        }
+    };
+
+    static GameServerProtocol g_protocol;
+
+    GameServer::GameServer(const core::ServerConfig &config)
+            : core::Carom3DServer(config) {
     }
 
-    void GameServer::onClientConnection(core::ClientSession *client) {
-        Server::onClientConnection(client);
-        User* user = UserService::getInstance().createUserSession(*client);
-        user->setServer((GameServer*)&client->server());
-        m_users.push_back(user);
+    core::MessagingProtocol* GameServer::messagingProtocol() {
+        return &g_protocol;
     }
 
-    void GameServer::onUnhandledClientAction(core::ClientSession* client, const ActionData& actionData) {
-        //TODO: Invalid Action
-        int a = actionData.id();
-        User* user = UserService::getInstance().getUser(*client);
-        if(!user || !user->player())
-            core::Server::onUnhandledClientAction(client, actionData);
-        else
-            printf("Unhandled client action: %S - %x - %d\n",
-                user->player()->name(),
-                actionData.id(),
-                actionData.data().size());
-    }
-
-    void GameServer::onClientDisconnection(core::ClientSession *client) {
-        Server::onClientDisconnection(client);
-        User* user = UserService::getInstance().getUser(*client);
-        UserSpot* spot = user->spot();
+    void GameServer::onClientDisconnection(core::ClientSession& client) {
+        User& user = (User&)client;
+        UserSpot* spot = user.spot();
         if(spot) {
             if(spot->isOfType(0))
-                ChannelService::getInstance().removeUserFromChannel(*(Channel*)spot, *user);
+                ChannelService::getInstance().removeUserFromChannel(*(Channel*)spot, user);
             if(spot->isOfType(1))
-                RoomService::getInstance().removeUserFromRoom(*(Room*)spot, *user);
+                RoomService::getInstance().removeUserFromRoom(*(Room*)spot, user);
         }
-        UserService::getInstance().logoutUser(*user);
+        UserService::getInstance().logoutUser(user);
+        this->Carom3DServer::onClientDisconnection(client);
     }
 
     int GameServer::createRoom(const wchar_t *title, User *user, int maxPlayers, const Room::GameInfo &gameInfo, Room **pRetRoom) {

@@ -5,52 +5,60 @@
 #ifndef __OPEN_CAROM3D_SERVER_CLIENT_SESSION_H__
 #define __OPEN_CAROM3D_SERVER_CLIENT_SESSION_H__
 
+#include <nettools/ntConnection.h>
+#include <core/util/types.h>
 #include <vector>
-
-#include <nettools/ntClient.h>
-#include "messaging/crypto.h"
-#include "action.h"
 
 namespace core {
 
     class Server;
 
     class ClientSession {
-        Server &m_server;
+    protected:
+        Server& m_server;
+        nettools::ntConnection& m_ntClient;
         u32 m_sessionId;
-        nettools::ntClient &m_ntClient;
-        std::vector<char> m_unparsedData;
-        CryptoContext m_inDataCryptoCtx;
-        CryptoContext m_outDataCryptoCtx;
-        std::vector<ActionData> m_pendingActions;
+        std::vector<u8> m_pendingDataToRead;
+        std::vector<u8> m_pendingDataToSend;
 
     public:
-        ClientSession(nettools::ntClient &ntClient, Server &server);
+        ClientSession(nettools::ntConnection& ntClient, Server& server);
 
-        void appendUnparsedData(unsigned char data[], unsigned int dataLen) {
-            m_unparsedData.insert(m_unparsedData.end(), data, data + dataLen);
+        void appendReceivedData(unsigned char data[], unsigned int dataLen) {
+            m_pendingDataToRead.insert(m_pendingDataToRead.end(), data, data + dataLen);
         }
 
-        void appendActions(std::vector<ActionData> actionDatas) {
-            m_pendingActions.insert(m_pendingActions.end(), actionDatas.begin(), actionDatas.end());
-        };
-
-        CryptoContext &inDataCryptoCtx() { return m_inDataCryptoCtx; }
-
-        CryptoContext &outDataCryptoCtx() { return m_outDataCryptoCtx; }
-
-        const std::vector<ActionData> &pendingActions() const { return m_pendingActions; }
-
-        void clearPendingActions() {
-            if (!m_pendingActions.empty())
-                m_pendingActions.clear();
+        void appendDataToSend(unsigned char data[], unsigned int dataLen) {
+            m_pendingDataToRead.insert(m_pendingDataToRead.end(), data, data + dataLen);
         }
 
-        void sendAction(const ActionData &action);
+        void discardReadPendingData(unsigned int dataLen) {
+            m_pendingDataToRead.erase(m_pendingDataToRead.begin(), m_pendingDataToRead.begin() + dataLen);
+        }
 
-        u32 sessionId() const { return m_sessionId; }
-        nettools::ntClient& ntClient() const { return m_ntClient; }
+        void discardSendPendingData(unsigned int dataLen) {
+            m_pendingDataToSend.erase(m_pendingDataToSend.begin(), m_pendingDataToSend.begin() + dataLen);
+        }
+
+        u8* pendingReadData() {
+            return &m_pendingDataToRead[0];
+        }
+
+        u8* pendingSendData() {
+            return &m_pendingDataToSend[0];
+        }
+
+        u32 pendingReadDataSize() const {
+            return m_pendingDataToRead.size();
+        }
+
+        u32 pendingSendDataSize() const {
+            return m_pendingDataToSend.size();
+        }
+
         Server& server() const { return m_server; }
+        nettools::ntConnection& ntClient() const { return m_ntClient; }
+        u32 sessionId() const { return m_sessionId; }
     };
 
 }

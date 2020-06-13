@@ -5,9 +5,10 @@
 #include <list>
 #include <thread>
 
-#include "server_list_request_action.h"
 #include <core/server/server_context.h>
+#include <business/entity/user.h>
 #include <business/service/server_service.h>
+#include "server_list_request_action.h"
 
 namespace business { namespace management {
 
@@ -59,19 +60,19 @@ namespace business { namespace management {
         ServerInfoUpdate updateInfo = {0};
         updateInfo.serverState = 1;
 
-        std::list<Server*> servers = business::ServerService::getInstance().getServerList();
+        std::list<core::Server*> servers = business::ServerService::getInstance().getServerList();
         int i = 1;
-        for(Server* server : servers) {
+        for(core::Server* server : servers) {
             serverInfo.serverId = i++;
             ::strncpy(serverInfo.serverHost, server->hostname(), 15);
             serverInfo.serverHost[15] = '\0';
 
             serverInfo.playersConnected = server->clientsConnectedCount();
             ActionData serverInfoAction(0x01, (unsigned char *) &serverInfo, sizeof(serverInfo));
-            user.client().sendAction(serverInfoAction);
+            user.sendAction(serverInfoAction);
         }
         ActionData serverListEnd(0x04, nullptr, 0);
-        user.client().sendAction(serverListEnd);
+        user.sendAction(serverListEnd);
     }
 
 }}

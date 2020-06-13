@@ -17,7 +17,7 @@ namespace business {
         , m_to(to) {
     }
 
-    void ServerDestination::send(std::list<core::ActionData *> &actions) {
+    void ServerDestination::send(const std::list<core::ActionData *> &actions) {
         for(auto user : m_server.users()) {
             //TODO(CGR): transform values in non-literal constants
             int to = m_to;
@@ -34,7 +34,7 @@ namespace business {
             }
 
             for (auto action : actions)
-                user->client().sendAction(*action);
+                user->sendAction(*action);
         }
     }
 
@@ -42,10 +42,10 @@ namespace business {
             : m_channel(channel) {
     }
 
-    void ChannelDestination::send(std::list<core::ActionData *> &actions) {
+    void ChannelDestination::send(const std::list<core::ActionData *> &actions) {
         for (auto user : m_channel.usersIn()) {
             for (auto action : actions)
-                user->client().sendAction(*action);
+                user->sendAction(*action);
         }
     }
 
@@ -54,10 +54,10 @@ namespace business {
 
     }
 
-    void RoomDestination::send(std::list<core::ActionData *> &actions) {
+    void RoomDestination::send(const std::list<core::ActionData *> &actions) {
         for (auto user : m_room.users()) {
             for (auto action : actions)
-                user->client().sendAction(*action);
+                user->sendAction(*action);
         }
     }
 
@@ -65,9 +65,9 @@ namespace business {
             : m_user(user) {
     }
 
-    void UserDestination::send(std::list<core::ActionData *> &actions) {
+    void UserDestination::send(const std::list<core::ActionData *> &actions) {
         for (auto action : actions)
-            m_user.client().sendAction(*action);
+            ((User&)m_user).sendAction(*action);
     }
 
 }

@@ -3,7 +3,7 @@
 //
 
 #include <ctime>
-#include <business/util/abstract_action.h>
+#include <business/api/messaging.h>
 #include <business/entity/player.h>
 #include <business/entity/room.h>
 #include <business/game_server/game_server.h>
@@ -35,7 +35,7 @@ namespace business {
 
     Room* RoomService::createRoom(User *user, const wchar_t *title, const wchar_t *password, int maxPlayers, const Room::GameInfo& gameInfo) {
         Room *newRoom;
-        user->server()->createRoom(title, user, maxPlayers, gameInfo, &newRoom);
+        user->server().createRoom(title, user, maxPlayers, gameInfo, &newRoom);
         if(nullptr == newRoom)
             return nullptr;
 
@@ -95,7 +95,7 @@ namespace business {
             roomData.slotInfos.playerListIndex[i] = slotInfos.playerListIndex[i];
         }
         ActionData roomCreatedAction(0x25, &roomData, sizeof(roomData));
-        user->client().sendAction(roomCreatedAction);
+        user->sendAction(roomCreatedAction);
 
         //TODO(CGR): room creation fail
 
@@ -176,7 +176,7 @@ namespace business {
             roomData.slotInfos.playerListIndex[i] = slotInfos.playerListIndex[i];
         }
         ActionData roomCreatedAction(0x24, &roomData, sizeof(roomData));
-        user.client().sendAction(roomCreatedAction);
+        user.sendAction(roomCreatedAction);
 
         //get all players in room
         for(auto userListIndex : room.userQueue()) {
@@ -267,7 +267,7 @@ namespace business {
         ActionDispatcher::prepare().action(playerListEnd).send(UserDestination(user));
 
         //TODO(CGR): process fail result
-        notifyServerOfRoomPlayerCountUpdate(*user.server(), room);
+        notifyServerOfRoomPlayerCountUpdate(user.server(), room);
     }
 
     Room* RoomService::getRoom(GameServer& server, const wchar_t* roomTitle) {
@@ -343,7 +343,7 @@ namespace business {
         for(auto userIndex : room.userQueue()) {
             User* userIn = room.userInListIndex(userIndex);
             ActionData playerJoinSlotAction(0x4D, (u8 *) &modificationResultData, sizeof(modificationResultData));
-            userIn->client().sendAction(playerJoinSlotAction);
+            userIn->sendAction(playerJoinSlotAction);
         }
     }
 
@@ -417,7 +417,7 @@ namespace business {
             ActionData setRoomStateActionData(0x50, &state, 4);
             ActionDispatcher::prepare().action(setRoomStateActionData).send(RoomDestination(room));
 
-            this->notifyServerOfRoomStateUpdate(*user.server(), room);
+            this->notifyServerOfRoomStateUpdate(user.server(), room);
         }
 
     }
@@ -430,7 +430,7 @@ namespace business {
         }
 
         ActionData showRoomScreenActionData(0x61);
-        user.client().sendAction(showRoomScreenActionData);
+        user.sendAction(showRoomScreenActionData);
     }
 
     //TODO(CGR): All following methods should be moved to ServerService?

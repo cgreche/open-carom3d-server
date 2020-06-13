@@ -2,13 +2,19 @@
 // Created by CGR on 16/05/2020.
 //
 
+#include <core/server/carom3d/action.h>
+#include <business/entity/user.h>
 #include <business/entity/player.h>
-#include <business/util/abstract_action.h>
 #include <business/util/action_dispatcher.h>
 #include <business/util/destination.h>
+#include <business/service/user_service.h>
 #include "channel_service.h"
 
+
 namespace business {
+
+    using core::Action;
+    using core::ActionData;
 
     static ChannelService g_lobbyService;
 
@@ -54,7 +60,7 @@ namespace business {
         //TODO(CGR): modularize
         ChannelPlayer channelPlayer = {0};
         ActionData joinChannelAction(0x1D, (unsigned char *) channel.name(), (::wcslen(channel.name()) + 1) * 2);
-        user.client().sendAction(joinChannelAction);
+        user.sendAction(joinChannelAction);
 
         channelPlayer.accountNumber = user.player()->id();
         ::wcsncpy(channelPlayer.playerName, user.player()->name(), 20);
@@ -67,13 +73,13 @@ namespace business {
             channelPlayer.level = userIn->player()->level();
             ::wcscpy(channelPlayer.playerName, userIn->player()->name());
             ActionData channelPlayerAction(0x1E, (unsigned char *) &channelPlayer, sizeof(channelPlayer));
-            user.client().sendAction(channelPlayerAction);
+            user.sendAction(channelPlayerAction);
         }
 
         for (User *userIn : channel.usersIn()) {
             if(userIn == &user) continue;
             ActionData channelUserAction(0x1E, (unsigned char *) &channelPlayer, sizeof(channelPlayer));
-            userIn->client().sendAction(channelUserAction);
+            userIn->sendAction(channelUserAction);
         }
 
     }

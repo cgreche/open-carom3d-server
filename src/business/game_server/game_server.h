@@ -6,8 +6,7 @@
 #define __OPEN_CAROM3D_SERVER_GAME_SERVER_H__
 
 #include <list>
-#include <core/server/server_config.h>
-#include <core/server/server_context.h>
+#include <core/server/carom3d/carom3d_server.h>
 #include <business/entity/room.h>
 
 namespace business {
@@ -16,16 +15,16 @@ namespace business {
     class Room;
     using core::ActionData;
 
-    class GameServer : public core::Server {
+    class GameServer : public core::Carom3DServer {
         std::list<User*> m_users;
         std::list<Room*> m_rooms;
 
     public:
         explicit GameServer(const core::ServerConfig &config);
        
-        void onClientConnection(core::ClientSession *client) override;
-        void onUnhandledClientAction(core::ClientSession* client, const ActionData& actionData) override;
-        void onClientDisconnection(core::ClientSession *client) override;
+        void onClientDisconnection(core::ClientSession& client) override;
+
+        core::MessagingProtocol* messagingProtocol() override;
 
         int createRoom(const wchar_t* title, User* user, int maxPlayers, const Room::GameInfo& gameInfo, Room** pRetRoom);
         Room* getRoom(const wchar_t* title);

@@ -5,7 +5,7 @@
 #ifndef __OPEN_CAROM3D_SERVER_LOGINACTION_H__
 #define __OPEN_CAROM3D_SERVER_LOGINACTION_H__
 
-#include <business/util/abstract_action.h>
+#include "../management_server_action.h"
 
 namespace business { namespace management {
 
@@ -19,7 +19,7 @@ namespace business { namespace management {
     };
 #pragma pack(pop)
 
-    class LoginAction : public AbstractAction<LoginData> {
+    class LoginAction : public ManagementServerAction<LoginData> {
 
     public:
         bool validate(const ActionData &action);

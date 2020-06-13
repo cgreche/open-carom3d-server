@@ -6,8 +6,12 @@
 #define __OPEN_CAROM3D_SERVER_SERVER_CONTEXT_H__
 
 #include <map>
+#include <nettools/ntConnection.h>
+#include <nettools/ntServer.h>
 #include "server_config.h"
-#include "messaging/message_listener.h"
+#include "messaging_protocol.h"
+#include "client_session.h"
+#include "server_context.h"
 
 namespace core {
 
@@ -20,42 +24,35 @@ namespace core {
         ServerConfig m_config;
         nettools::ntServer m_ntServer;
 
-        std::map<int, ClientSession *> m_clients;
+        std::map<unsigned long, ClientSession*> m_clients;
 
-        std::map<int, Action *> *m_actionMap;
-
-        void addClient(ClientSession *client);
-
-        void removeClient(ClientSession *client);
+        void addClient(ClientSession& client);
+        void removeClient(ClientSession& client);
 
     public:
         explicit Server(const ServerConfig &config);
         virtual ~Server();
 
-        void poll();
+        virtual MessagingProtocol* messagingProtocol() = 0;
 
+        virtual void poll();
         virtual void run();
 
-        void processClientActions(ClientSession *client);
+        virtual void disconnectClient(ClientSession *client);
 
-        void sendAction(Action &action);
-
-        void disconnectClient(ClientSession *client);
-
-        void setActionMap(std::map<int, Action *> *actionMap);
-
-        virtual void onClientConnection(ClientSession* client);
-        virtual void onClientAction(ClientSession* client, const ActionData& actionData);
-        virtual void onUnhandledClientAction(ClientSession* client, const ActionData& actionData);
-        virtual void onClientDisconnection(ClientSession *client);
+        virtual void onClientConnection(ClientSession& client);
+        virtual void onClientDataReceived(ClientSession& client);
+        virtual void onClientDataSent(ClientSession& client);
+        virtual void onClientDisconnection(ClientSession& client);
 
         const char *hostname() const { return m_config.host.c_str(); }
-
         unsigned short port() const { return m_config.port; }
 
-        virtual unsigned int clientsConnectedCount() {
-            return m_clients.size();
+        virtual ClientSession* client(unsigned long sessionId) {
+            auto it = m_clients.find(sessionId);
+            return it != m_clients.end() ? it->second : nullptr;
         }
+        virtual unsigned int clientsConnectedCount() { return m_clients.size(); }
 
     };
 

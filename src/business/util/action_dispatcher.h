@@ -6,12 +6,12 @@
 #define __OPEN_CAROM3D_SERVER_ACTION_DISPATCHER_H__
 
 #include <list>
-#include <core/server/action.h>
+#include <core/server/carom3d/action.h>
 
 namespace core {
     class Destination {
     public:
-        virtual void send(std::list<core::ActionData*>& actions) = 0;
+        virtual void send(const std::list<core::ActionData*>& actions) = 0;
     };
 
     class ActionDispatcher {

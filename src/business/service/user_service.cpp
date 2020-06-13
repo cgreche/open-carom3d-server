@@ -7,7 +7,6 @@
 #include <core/server/client_session.h>
 #include <business/api/messaging.h>
 #include <business/game_server/game_server.h>
-#include <business/util/abstract_action.h>
 #include <business/util/action_dispatcher.h>
 #include <business/util/destination.h>
 #include <business/service/account_service.h>
@@ -24,16 +23,6 @@ namespace business {
         return g_userService;
     }
 
-    void UserService::linkClientToUser(core::ClientSession &client, User &user) {
-        m_clientsUsers[client.sessionId()] = &user;
-    }
-
-    User *UserService::createUserSession(core::ClientSession &clientSession) {
-        User *user = new User(clientSession);
-        linkClientToUser(clientSession, *user);
-        return user;
-    }
-
     User *UserService::getUser(core::ClientSession &clientSession) {
         return m_clientsUsers[clientSession.sessionId()];
     }
@@ -41,7 +30,7 @@ namespace business {
 	void sendClientVersion(User& user) {
 		char version[20] = "5.31";
 		ActionData action(0x16, (unsigned char*)version, sizeof(version));
-		user.client().sendAction(action);
+		user.sendAction(action);
 	}
 
 	void sendLoginResult(User& user) {
@@ -55,19 +44,19 @@ namespace business {
 		loginResult.playerName[20] = L'\0';
 
 		ActionData loginResultAction(0x18, (unsigned char*)&loginResult, sizeof(loginResult));
-		user.client().sendAction(loginResultAction);
+		user.sendAction(loginResultAction);
 	}
 
 	//TODO(CGR): move to a more appropriated service
 	void sendBlackBoardMessage(User& user, const wchar_t* message) {
 		ActionData blackBoardMessageAction(0x56, (unsigned char*)message, (::wcslen(message) + 1) * 2);
-		user.client().sendAction(blackBoardMessageAction);
+		user.sendAction(blackBoardMessageAction);
 	}
 
 	//TODO(CGR): move to a more appropriated service
 	void sendElectronicPanelMessage(User& user, const wchar_t* message) {
 		ActionData action(0x54, (unsigned char*)message, (::wcslen(message) + 1) * 2);
-		user.client().sendAction(action);
+		user.sendAction(action);
 	}
 
     void UserService::loginUser(User& user, const wchar_t *accountId, const wchar_t *accountPassword, const wchar_t *preferredLanguage) {
@@ -81,7 +70,7 @@ namespace business {
             ActionData disconnectAction(0x35);
             ActionDispatcher::prepare().action(disconnectAction).send(UserDestination(*loggedUser));
 
-            loggedUser->server()->disconnectClient(&loggedUser->client());
+            loggedUser->server().disconnectClient(loggedUser);
         }
 
         m_usersAccounts[account] = &user;
@@ -94,7 +83,7 @@ namespace business {
 
 		int waitValue = 0;
 		ActionData notifyRemainAction(0x60, (unsigned char*)&waitValue, 4);
-		user.client().sendAction(notifyRemainAction);
+		user.sendAction(notifyRemainAction);
 
 		//TODO(CGR): sleeping is bad. But without it, messages aren't processed correctly on client
 		// Find a better way to do it
@@ -110,7 +99,7 @@ namespace business {
 		playerStats.country[0] = L'B';
 		playerStats.country[1] = L'R';
 		ActionData playerStatsAction(0x68, (unsigned char*)&playerStats, sizeof(playerStats));
-		user.client().sendAction(playerStatsAction);
+		user.sendAction(playerStatsAction);
 
 		sendNotifyMessage(user, L"Welcome to Open Carom3D Server\n");
 
@@ -124,12 +113,12 @@ namespace business {
     void UserService::logoutUser(User &user) {
         if(nullptr != user.account())
             m_usersAccounts[user.account()] = nullptr;
-        m_clientsUsers.erase(user.client().sessionId());
+        m_clientsUsers.erase(user.sessionId());
     }
 
 	void UserService::sendNotifyMessage(User& user, const wchar_t* message) {
 		ActionData greenMessage(0x1C, (unsigned char*)message, (::wcslen(message) + 1) * 2);
-		user.client().sendAction(greenMessage);
+		user.sendAction(greenMessage);
 	}
 
     //TODO: force joining somewhere (a similar channel)
@@ -154,7 +143,7 @@ namespace business {
     }
 
     Room *UserService::joinRoom(User &user, const wchar_t *roomTitle, const wchar_t *roomPassword) {
-        Room *room = RoomService::getInstance().getRoom(*user.server(), roomTitle);
+        Room *room = RoomService::getInstance().getRoom(user.server(), roomTitle);
         if(!room) {
             //TODO(CGR): send error
             return nullptr;
@@ -266,8 +255,8 @@ namespace business {
 	}
 
     void UserService::updateUserWithAllServerRooms(const User& user) {
-        GameServer* gameServer = user.server();
-        for(auto room : gameServer->rooms()) {
+        GameServer& gameServer = user.server();
+        for(auto room : gameServer.rooms()) {
             const Room::GameInfo& game = room->gameInfo();
             RoomInfoActionData actionData;
             actionData.roomId = room->id();

@@ -26,14 +26,11 @@ namespace business {
         std::map<int, User *> m_clientsUsers;
         std::map<Account*, User*> m_usersAccounts;
 
-        void linkClientToUser(core::ClientSession &client, User &user);
-
     public:
         static UserService &getInstance();
 
         void loginUser(User& user, const wchar_t *acocuntId, const wchar_t *accountPassword, const wchar_t *preferredLanguage);
         void logoutUser(User &user);
-        User* createUserSession(core::ClientSession &clientSession);
         User *getUser(core::ClientSession &clientSession);
 
         Channel *joinChannel(User &user, const wchar_t *channelName);
@@ -53,7 +50,6 @@ namespace business {
         void requestMatchMakerScreen(User& user);
 
         //
-        void notifyServerOfRoomCreation(const GameServer& server, const Room& room);
         void updateUserWithAllServerRooms(const User& user);
 
 		//Utils

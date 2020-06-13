@@ -5,41 +5,41 @@
 #ifndef __OPEN_CAROM3D_SERVER_ACTIONS_H__
 #define __OPEN_CAROM3D_SERVER_ACTIONS_H__
 
-#include <business/util/abstract_action.h>
+#include "game_server_action.h"
 
 namespace business {
 
     //0x01
-	class LoginAction : public AbstractAction<LoginActionData> {
+	class LoginAction : public GameServerAction<LoginActionData> {
 	public:
 		void execute(const ActionData& action, User& user, const LoginActionData* data) override {
 			UserService::getInstance().loginUser(user, data->username, data->password, data->country);
 		}
 	};
 
-    class CreateRoomAction : public AbstractAction<CreateRoomActionData> {
+    class CreateRoomAction : public GameServerAction<CreateRoomActionData> {
         void execute(const ActionData &action, User &user, const CreateRoomActionData *data) override {
             UserService::getInstance().createRoom(user, *data);
         }
     };
 
-	class JoinChannelAction : public AbstractAction<wchar_t> {
+	class JoinChannelAction : public GameServerAction<wchar_t> {
 	public:
 		void execute(const ActionData& action, User& user, const wchar_t* data) override {
 			UserService::getInstance().joinChannel(user, data);
 		}
 	};
 
-    class JoinRoomAction : public AbstractAction<JoinRoomActionData> {
+    class JoinRoomAction : public GameServerAction<JoinRoomActionData> {
         void execute(const ActionData &action, User &user, const JoinRoomActionData *data) override {
             UserService::getInstance().joinRoom(user, data->roomTitle, data->roomPassword);
         }
     };
 
-    class ChannelMessageAction : public AbstractAction<wchar_t> {
+    class ChannelMessageAction : public GameServerAction<wchar_t> {
         bool validate(const ActionData &action) override {
             return true;
-         }
+        }
 
         void execute(const ActionData &action, User &user, const wchar_t *message) override {
             //TODO(CGR): move to UserService
@@ -50,26 +50,26 @@ namespace business {
         }
     };
 
-    class ExitRoomAction : public AbstractAction<void> {
+    class ExitRoomAction : public GameServerAction<void> {
         void execute(const ActionData &action, User &user, const void *data) override {
             UserService::getInstance().exitRoom(user);
         }
     };
 
-    class StartMatchAction : public AbstractAction<void> {
+    class StartMatchAction : public GameServerAction<void> {
         void execute(const ActionData &action, User &user, const void *data) override {
             UserService::getInstance().startMatch(user);
         }
     };
 
     //0x0A
-	class EndMatchAction : public AbstractAction<void> {
+	class EndMatchAction : public GameServerAction<void> {
 		void execute(const ActionData& action, User& user, const void* data) override {
             UserService::getInstance().matchFinished(user);
 		}
 	};
 
-    class PlayerProfileRequestAction : public AbstractAction<wchar_t> {
+    class PlayerProfileRequestAction : public GameServerAction<wchar_t> {
     public:
         void execute(const ActionData &action, User &user, const wchar_t *playerName) override {
             PlayerProfileData data = {0};
@@ -84,11 +84,11 @@ namespace business {
             data.level = 1;
 
             ActionData playerProfileAction(0x3A, &data, sizeof(data));
-            user.client().sendAction(playerProfileAction);
+            user.sendAction(playerProfileAction);
         }
     };
 
-    class MatchEventInfoAction : public AbstractAction<u8> {
+    class MatchEventInfoAction : public GameServerAction<u8> {
     public:
         void execute(const ActionData &action, User &user, const u8 *data) override {
             UserService::getInstance().sendMatchEventInfo(user, data, action.data().size());
@@ -96,7 +96,7 @@ namespace business {
     };
 
 
-    class RoomSlotModificationAction : public AbstractAction<RoomSlotModificationActionData> {
+    class RoomSlotModificationAction : public GameServerAction<RoomSlotModificationActionData> {
         void execute(const ActionData &action, User &user, const RoomSlotModificationActionData *data) override {
             switch(data->function) {
                 case 0: {
@@ -121,19 +121,19 @@ namespace business {
         }
     };
 
-    class RoomKickPlayerAction : public AbstractAction<int> {
+    class RoomKickPlayerAction : public GameServerAction<int> {
         void execute(const ActionData &action, User &user, const int *data) override {
             UserService::getInstance().kickUserFromRoom(user, *data);
         }
     };
 
-    class MatchMakerScreenRequestAction : public AbstractAction<wchar_t> {
+    class MatchMakerScreenRequestAction : public GameServerAction<wchar_t> {
         void execute(const ActionData &action, User &user, const wchar_t *data) override {
 			UserService::getInstance().requestMatchMakerScreen(user);
         }
     };
 
-    class RoomMessageAction : public AbstractAction<wchar_t> {
+    class RoomMessageAction : public GameServerAction<wchar_t> {
         void execute(const ActionData& action, User& user, const wchar_t* data) override {
             UserService::getInstance().sendMessageToRoom(user, data);
         }

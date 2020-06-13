@@ -54,7 +54,7 @@ namespace business { namespace management {
         loginResult.playerName[20] = L'\x00';
 
         ActionData actionData(0x05, (unsigned char*)&loginResult, sizeof(loginResult));
-        user.client().sendAction(actionData);
+        user.sendAction(actionData);
     }
 
     bool LoginAction::validate(const ActionData &action) {

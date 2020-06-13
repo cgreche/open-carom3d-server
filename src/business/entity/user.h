@@ -6,9 +6,8 @@
 #define __OPEN_CAROM3D_SERVER_USER_H__
 
 #include <string>
+#include <core/server/carom3d/carom3d_user_session.h>
 #include "user_spot.h"
-
-namespace core { class ClientSession; }
 
 namespace business {
 
@@ -19,9 +18,7 @@ namespace business {
     class Channel;
     class Room;
 
-    class User {
-        core::ClientSession &m_clientSession;
-        GameServer* m_server;
+    class User : public core::Carom3DUserSession {
         Account *m_account;
         Player *m_player;
         UserSpot* m_spot;
@@ -29,24 +26,22 @@ namespace business {
         std::wstring m_lastChannelName;
 
     public:
-        explicit User(core::ClientSession &session);
+        explicit User(nettools::ntConnection& ntConnection, core::Server& server);
 
-        void setServer(GameServer* server);
         void setAccount(Account* account);
         void setPlayer(Player* player);
         void setSpot(UserSpot *spot);
 
-        core::ClientSession &client() const { return m_clientSession; }
+        GameServer& server() const { return (GameServer&)m_server; }
         Account *account() const { return m_account; }
         Player *player() const { return m_player; }
         UserSpot *spot() const { return m_spot; }
-        GameServer* server() const { return m_server; }
 
         const wchar_t* lastChannelName() const { return m_lastChannelName.c_str(); }
 
         //TODO(CGR): 0 to constant
         bool inChannel() const { return m_spot && m_spot->isOfType(0); }
-        //TODO(CGR): 0 to constant
+        //TODO(CGR): 1 to constant
         bool inRoom() const { return m_spot && m_spot->isOfType(1); }
 
         Channel* channelIn() const { return inChannel() ? (Channel*)m_spot : nullptr; }

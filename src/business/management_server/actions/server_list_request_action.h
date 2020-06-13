@@ -5,11 +5,11 @@
 #ifndef __OPEN_CAROM3D_SERVER_SERVER_LIST_REQUEST_H__
 #define __OPEN_CAROM3D_SERVER_SERVER_LIST_REQUEST_H__
 
-#include <business/util/abstract_action.h>
+#include "../management_server_action.h"
 
 namespace business { namespace management {
 
-    class ServerListRequestAction : public AbstractAction<void> {
+    class ServerListRequestAction : public ManagementServerAction<void> {
     public:
         bool validate(const ActionData &action) override { return true; }
 
