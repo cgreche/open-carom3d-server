@@ -88,10 +88,19 @@ namespace business {
         }
     };
 
+    //0x69
     class MatchEventInfoAction : public GameServerAction<u8> {
     public:
-        void execute(const ActionData &action, User &user, const u8 *data) override {
+        void execute(const ActionData& action, User& user, const u8* data) override {
             UserService::getInstance().sendMatchEventInfo(user, data, action.data().size());
+        }
+    };
+
+    //0x6B
+    class MatchEventInfoAction2 : public GameServerAction<u8> {
+    public:
+        void execute(const ActionData& action, User& user, const u8* data) override {
+            UserService::getInstance().sendMatchEventInfo2(user, data, action.data().size());
         }
     };
 

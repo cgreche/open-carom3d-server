@@ -308,7 +308,9 @@ namespace business {
 			int listIndex = userListIndex;
 			ActionData userExitedRoomAction(0x28, &listIndex, 4);
 			ActionDispatcher::prepare().action(userExitedRoomAction).send(RoomDestination(room));
-		}
+
+            notifyServerOfRoomPlayerCountUpdate(room.server(), room);
+        }
 		else {
 			int roomId = room.id();
 
@@ -484,7 +486,7 @@ namespace business {
         struct RoomUpdateInfo {
             u32 roomId;
             int state;
-        } updateInfo = { room.id(), room.closed() };
+        } updateInfo = { room.id(), room.state() };
         int playerInCount = room.usersInCount();
         ActionData action(0x30, &updateInfo, sizeof(updateInfo));
         ActionDispatcher::prepare().action(action).send(ServerDestination(server, 1));

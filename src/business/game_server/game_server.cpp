@@ -26,6 +26,7 @@ namespace business {
 #define PLAYER_PROFILE_REQUEST 0x35
 #define PERSONAL_MESSAGE_ACTION 0x36 //TODO(CGR)
 #define MATCH_EVENT_INFO_ACTION 0x69
+#define MATCH_EVENT_INFO_ACTION2 0x6B
 #define ROOM_SLOT_MODIFICATION_ACTION 0x6D
 #define ROOM_KICK_PLAYER_ACTION 0x96
 #define MATCH_MAKER_SCREEN_REQUEST 0x97
@@ -45,6 +46,7 @@ namespace business {
 			{ END_MATCH_ACTION, new EndMatchAction },
 			{ PLAYER_PROFILE_REQUEST, new PlayerProfileRequestAction },
             { MATCH_EVENT_INFO_ACTION, new MatchEventInfoAction },
+            { MATCH_EVENT_INFO_ACTION2, new MatchEventInfoAction2 },
             { ROOM_SLOT_MODIFICATION_ACTION, new RoomSlotModificationAction },
             { ROOM_KICK_PLAYER_ACTION, new RoomKickPlayerAction },
             { MATCH_MAKER_SCREEN_REQUEST, new MatchMakerScreenRequestAction },

@@ -206,14 +206,11 @@ namespace business {
         if(!room)
             return;
 
-		//if (::wcsstr(message, L"-d") != 0) {
-		//	wchar_t rm[100];
-		//	::wcscpy(rm, &message[8]);
-		//	ActionData roomMaster(0x32, rm, sizeof(rm)-8);
-		//	ActionDispatcher::prepare().action(roomMaster).to(RoomDestination(*room)).send();
-		//}
+		if (::wcsstr(message, L"-s") != 0) {
+            this->startMatch(user);
+		}
 
-        RoomService::getInstance().sendMessageToRoom(*room, user, message);
+        //RoomService::getInstance().sendMessageToRoom(*room, user, message);
     }
 
     void UserService::startMatch(User& user) {
@@ -236,13 +233,30 @@ namespace business {
         if(!room)
             return;
 
+        u32 first4 = *(u32*)data;
+
         ActionData matchEventInfoAction(0x47, data, dataSize);
         for(auto userIn : room->users()) {
             if(userIn != &user) {
                 ActionDispatcher::prepare()
-                                    .action(matchEventInfoAction)
-                                    .send(UserDestination(*userIn));
+                    .action(matchEventInfoAction)
+                    .send(UserDestination(*userIn));
             }
+        }
+    }
+
+    void UserService::sendMatchEventInfo2(User& user, const u8* data, u32 dataSize) {
+        Room* room = user.roomIn();
+        if(!room)
+            return;
+
+        u32 enteringUserListIndex = *(u32*)data;
+        User* enteringUser = room->userInListIndex(enteringUserListIndex);
+        //TODO(CGR): get last joiner, not sent listIndex as a better way to protect
+
+        if(nullptr != enteringUser) {
+            ActionData matchEventInfoAction2(0x49, data, dataSize);
+            ActionDispatcher::prepare().action(matchEventInfoAction2).send(UserDestination(*enteringUser));
         }
     }
 

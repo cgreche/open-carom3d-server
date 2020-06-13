@@ -47,6 +47,7 @@ namespace business {
         void startMatch(User& user);
         void matchFinished(User& user);
         void sendMatchEventInfo(User& user, const u8* data, u32 dataSize);
+        void sendMatchEventInfo2(User& user, const u8* data, u32 dataSize);
         void requestMatchMakerScreen(User& user);
 
         //

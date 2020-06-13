@@ -16,7 +16,6 @@ namespace business {
     using core::ActionData;
 
     class GameServer : public core::Carom3DServer {
-        std::list<User*> m_users;
         std::list<Room*> m_rooms;
 
     public:
@@ -30,7 +29,6 @@ namespace business {
         Room* getRoom(const wchar_t* title);
         int destroyRoom(Room& room);
 
-        const std::list<User*>& users() const { return m_users; }
         const std::list<Room*>& rooms() const { return m_rooms; }
     };
 
