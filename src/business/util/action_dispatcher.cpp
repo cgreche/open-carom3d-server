@@ -15,7 +15,7 @@ namespace core {
         return dispatcher;
     }
 
-    ActionDispatcher &ActionDispatcher::action(ActionData &data) {
+    ActionDispatcher &ActionDispatcher::action(const ActionData &data) {
         m_actions.push_back(&data);
         return *this;
     }

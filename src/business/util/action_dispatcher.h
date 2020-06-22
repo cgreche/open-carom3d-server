@@ -11,16 +11,16 @@
 namespace core {
     class Destination {
     public:
-        virtual void send(const std::list<core::ActionData*>& actions) = 0;
+        virtual void send(const std::list<const core::ActionData*>& actions) = 0;
     };
 
     class ActionDispatcher {
     protected:
-        std::list<ActionData*> m_actions;
+        std::list<const ActionData*> m_actions;
 
     public:
         static ActionDispatcher& prepare();
-        ActionDispatcher &action(ActionData& data);
+        ActionDispatcher &action(const ActionData& data);
         void send(const Destination& destination);
     };
 }

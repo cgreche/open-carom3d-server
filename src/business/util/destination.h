@@ -19,28 +19,28 @@ namespace business {
         int m_to;
     public:
         explicit ServerDestination(const GameServer &server, int to = 0);
-        void send(const std::list<core::ActionData*>& actions) final;
+        void send(const std::list<const core::ActionData*>& actions) final;
     };
 
     class ChannelDestination : public core::Destination {
         const Channel &m_channel;
     public:
         explicit ChannelDestination(const Channel &channel);
-        void send(const std::list<core::ActionData*>& actions) final;
+        void send(const std::list<const core::ActionData*>& actions) final;
     };
 
     class RoomDestination : public core::Destination {
         const Room &m_room;
     public:
         explicit RoomDestination(const Room &room);
-        void send(const std::list<core::ActionData*>& actions) final;
+        void send(const std::list<const core::ActionData*>& actions) final;
     };
 
     class UserDestination : public core::Destination {
         const User &m_user;
     public:
         explicit UserDestination(const User &user);
-        void send(const std::list<core::ActionData*>& actions) final;
+        void send(const std::list<const core::ActionData*>& actions) final;
     };
 
 }

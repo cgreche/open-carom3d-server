@@ -17,7 +17,7 @@ namespace business {
         , m_to(to) {
     }
 
-    void ServerDestination::send(const std::list<core::ActionData *> &actions) {
+    void ServerDestination::send(const std::list<const core::ActionData *> &actions) {
         auto const &clients = ((GameServer&)m_server).clients();
         for(auto const& client : clients) {
             User* user = (User*)client.second;
@@ -44,7 +44,7 @@ namespace business {
             : m_channel(channel) {
     }
 
-    void ChannelDestination::send(const std::list<core::ActionData *> &actions) {
+    void ChannelDestination::send(const std::list<const core::ActionData *> &actions) {
         for (auto user : m_channel.usersIn()) {
             for (auto action : actions)
                 user->sendAction(*action);
@@ -56,7 +56,7 @@ namespace business {
 
     }
 
-    void RoomDestination::send(const std::list<core::ActionData *> &actions) {
+    void RoomDestination::send(const std::list<const core::ActionData *> &actions) {
         for (auto user : m_room.users()) {
             for (auto action : actions)
                 user->sendAction(*action);
@@ -67,7 +67,7 @@ namespace business {
             : m_user(user) {
     }
 
-    void UserDestination::send(const std::list<core::ActionData *> &actions) {
+    void UserDestination::send(const std::list<const core::ActionData *> &actions) {
         for (auto action : actions)
             ((User&)m_user).sendAction(*action);
     }

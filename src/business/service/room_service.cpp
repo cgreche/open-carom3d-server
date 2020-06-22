@@ -7,6 +7,7 @@
 #include <business/entity/player.h>
 #include <business/entity/room.h>
 #include <business/game_server/game_server.h>
+#include <business/game_server/send_actions.h>
 #include <business/util/action_dispatcher.h>
 #include <business/util/destination.h>
 #include "channel_service.h"
@@ -22,12 +23,6 @@ namespace business {
     extern const int DEATH_MATCH_SLOT_LAYOUT[ROOM_SLOT_COUNT];
     extern const int CARD_BALL_SLOT_LAYOUT[ROOM_SLOT_COUNT];
     extern const int CHALLENGE_ROOM_SLOT_LAYOUT[ROOM_SLOT_COUNT];
-
-    //temp: TODO
-//    Player createDummyPlayer() {
-//        return Player();
-//    }
-
 
     RoomService &RoomService::getInstance() {
         return g_roomService;
@@ -74,73 +69,20 @@ namespace business {
         user->setSpot(newRoom);
         newRoom->setUserToSlot(listIndex, ROOM_MASTER_SLOT);
 
-        //TODO(CGR): modularize
-        CreatedRoomData roomData = {0};
-        ::wcsncpy(roomData.roomTitle, newRoom->title(), ROOM_TITLE_MAX_LEN + 1);
-        roomData.roomTitle[ROOM_TITLE_MAX_LEN] = L'\0';
-        ::wcsncpy(roomData.roomMaster, newRoom->roomMaster()->player()->name(), PLAYER_NAME_MAX_LEN + 1);
-        roomData.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
-        roomData.unk52 = 2;
 
-        const Room::GameInfo& game = newRoom->gameInfo();
-        roomData.roomType = game.roomType;
-        roomData.gameType = game.gameType;
-        roomData.matchType = game.matchType;
-        roomData.difficulty = game.difficulty;
-
-        //room slot infos
-        const Room::SlotInfos &slotInfos = newRoom->slotInfos();
-        for(int i = 0; i < 30; ++i) {
-            roomData.slotInfos.slotState[i] = slotInfos.state[i];
-            roomData.slotInfos.playerListIndex[i] = slotInfos.playerListIndex[i];
-        }
-        ActionData roomCreatedAction(0x25, &roomData, sizeof(roomData));
-        user->sendAction(roomCreatedAction);
-
+        user->sendAction(RoomCreationActionTemplate(*newRoom).data());
         //TODO(CGR): room creation fail
 
         this->resetRoom(*newRoom);
 
-        RoomPlayerData roomPlayer = {0};
-        //notify all players that user joined
-        Player *player = user->player();
-        ::wcsncpy(roomPlayer.id, player->name(), PLAYER_NAME_MAX_LEN + 1);
-        roomPlayer.id[PLAYER_NAME_MAX_LEN] = L'\0';
-        roomPlayer.country[0] = L'B';
-        roomPlayer.country[1] = L'R';
-        roomPlayer.level = player->level();
-        roomPlayer.listIndex = listIndex;
-        roomPlayer.cueId = 3000;
-        roomPlayer.unk130 = 1;
-        roomPlayer.power = 150;
-        roomPlayer.power_range = 150;
-        roomPlayer.chalks = 0;
-        roomPlayer.control = 150;
-        roomPlayer.backSpin = 54;
-        roomPlayer.topSpin = 54;
-        roomPlayer.sideSpin = 54;
-        roomPlayer.unk84 = 0;
-        roomPlayer.unk6D = 0;
-        roomPlayer.unk120 = 0;
-        roomPlayer.unk121 = 0;
-        roomPlayer.unk130 = 0;
-        roomPlayer.unk145 = 0;
-        roomPlayer.charGender = 1;
-        roomPlayer.unused99 = 0;
-        roomPlayer.unk6D = 0;
-        roomPlayer.unusedA1 = 0;
-        roomPlayer.unkA5 = 0;
-        roomPlayer.unusedA9 = 0;
-        roomPlayer.unkA5 = 0;
-        ActionData playerInfoActionData(0x27, &roomPlayer, sizeof(roomPlayer));
         RoomPlayerItemData item = {0};
         ActionData playerItemInfosActionData(0x71, &item, sizeof(item));
         ActionDispatcher::prepare()
-                .action(playerInfoActionData)
+                .action(RoomPlayerJoinActionTemplate(*user->player(), listIndex).data())
                 .action(playerItemInfosActionData)
                 .send(UserDestination(*user));
 
-        ActionData playerListEnd(0x63, nullptr, 0);
+        ActionData playerListEnd(0x63);
         ActionDispatcher::prepare().action(playerListEnd).send(UserDestination(*user));
 
         notifyServerOfRoomCreation(newRoom->server(), *newRoom);
@@ -184,82 +126,18 @@ namespace business {
             if(userIn == &user)
                 continue;
 
-            Player *player = userIn->player();
-
-            RoomPlayerData roomPlayer = {0};
-            ::wcsncpy(roomPlayer.id, player->name(), PLAYER_NAME_MAX_LEN);
-            roomPlayer.id[PLAYER_NAME_MAX_LEN] = L'\0';
-            roomPlayer.country[0] = L'B';
-            roomPlayer.country[1] = L'R';
-            roomPlayer.level = player->level();
-            roomPlayer.listIndex = userListIndex;
-            roomPlayer.cueId = 3000;
-            roomPlayer.unk130 = 1;
-            roomPlayer.power = 150;
-            roomPlayer.power_range = 150;
-            roomPlayer.chalks = 0;
-            roomPlayer.control = 150;
-            roomPlayer.backSpin = 54;
-            roomPlayer.topSpin = 54;
-            roomPlayer.sideSpin = 54;
-            roomPlayer.unk84 = 0;
-            roomPlayer.unk6D = 15;
-            roomPlayer.unk120 = 0;
-            roomPlayer.unk121 = 0;
-            roomPlayer.unk130 = 0;
-            roomPlayer.unk145 = 0;
-            roomPlayer.charGender = 1;
-            roomPlayer.unused99 = 0;
-            roomPlayer.unk6D = 0;
-            roomPlayer.unusedA1 = 0;
-            roomPlayer.unkA5 = 0;
-            roomPlayer.unusedA9 = 0;
-            roomPlayer.unkA5 = 0;
-
-            ActionData playerInfoActionData(0x27, &roomPlayer, sizeof(roomPlayer));
             RoomPlayerItemData item = {0};
             ActionData playerItemInfosActionData(0x71, &item, sizeof(item));
 
-            ActionDispatcher::prepare().action(playerInfoActionData).send(UserDestination(user));
+            ActionDispatcher::prepare().action(RoomPlayerJoinActionTemplate(*userIn->player(), userListIndex).data()).send(UserDestination(user));
             ActionDispatcher::prepare().action(playerItemInfosActionData).send(UserDestination(user));
         }
 
-        RoomPlayerData roomPlayer = {0};
         //notify all players that user joined
-        Player *player = user.player();
-        ::wcsncpy(roomPlayer.id, player->name(), PLAYER_NAME_MAX_LEN + 1);
-        roomPlayer.id[PLAYER_NAME_MAX_LEN] = L'\0';
-        roomPlayer.country[0] = L'B';
-        roomPlayer.country[1] = L'R';
-        roomPlayer.level = player->level();
-        roomPlayer.listIndex = listIndex;
-        roomPlayer.cueId = 3000;
-        roomPlayer.unk130 = 1;
-        roomPlayer.power = 150;
-        roomPlayer.power_range = 150;
-        roomPlayer.chalks = 0;
-        roomPlayer.control = 150;
-        roomPlayer.backSpin = 54;
-        roomPlayer.topSpin = 54;
-        roomPlayer.sideSpin = 54;
-        roomPlayer.unk84 = 0;
-        roomPlayer.unk6D = 0;
-        roomPlayer.unk120 = 0;
-        roomPlayer.unk121 = 0;
-        roomPlayer.unk130 = 0;
-        roomPlayer.unk145 = 0;
-        roomPlayer.charGender = 1;
-        roomPlayer.unused99 = 0;
-        roomPlayer.unk6D = 0;
-        roomPlayer.unusedA1 = 0;
-        roomPlayer.unkA5 = 0;
-        roomPlayer.unusedA9 = 0;
-        roomPlayer.unkA5 = 0;
-        ActionData playerInfoActionData(0x27, &roomPlayer, sizeof(roomPlayer));
         RoomPlayerItemData item = {0};
         ActionData playerItemInfosActionData(0x71, &item, sizeof(item));
         ActionDispatcher::prepare()
-                            .action(playerInfoActionData)
+                            .action(RoomPlayerJoinActionTemplate(*user.player(), listIndex).data())
                             .action(playerItemInfosActionData)
                             .send(RoomDestination(room));
 
@@ -357,7 +235,7 @@ namespace business {
         int listIndex = room.getSlotUserListIndex(slot);
         int slotState = room.getSlotState(slot);
         SlotModificationResultData modificationResultData = {listIndex, slot, (int)slotState};
-        ActionData slotStateActionData(0x4D, (u8 *) &modificationResultData, sizeof(modificationResultData));
+        ActionData slotStateActionData(0x4D, (u8 *)&modificationResultData, sizeof(modificationResultData));
         ActionDispatcher::prepare().action(slotStateActionData).send(RoomDestination(room));
     }
 

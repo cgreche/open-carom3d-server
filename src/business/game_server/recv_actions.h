@@ -2,8 +2,8 @@
 // Created by CGR on 20/05/2020.
 //
 
-#ifndef __OPEN_CAROM3D_SERVER_ACTIONS_H__
-#define __OPEN_CAROM3D_SERVER_ACTIONS_H__
+#ifndef __OPEN_CAROM3D_SERVER_RECV_ACTIONS_H__
+#define __OPEN_CAROM3D_SERVER_RECV_ACTIONS_H__
 
 #include "game_server_action.h"
 
