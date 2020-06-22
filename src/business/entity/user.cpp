@@ -32,4 +32,10 @@ namespace business {
         m_spot = spot;
     }
 
+    void User::setCoverStates(int coverStates[COVER_STATE_COUNT]) {
+        m_coverStates[COVER_MESSAGE] = coverStates[COVER_MESSAGE];
+        m_coverStates[COVER_GUILD] = coverStates[COVER_GUILD];
+        m_coverStates[COVER_IN] = coverStates[COVER_IN];
+    }
+
 }

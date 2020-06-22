@@ -32,6 +32,7 @@ namespace business {
         void loginUser(User& user, const wchar_t *acocuntId, const wchar_t *accountPassword, const wchar_t *preferredLanguage);
         void logoutUser(User &user);
         User *getUser(core::ClientSession &clientSession);
+        User* findUser(const wchar_t* userName);
 
         Channel *joinChannel(User &user, const wchar_t *channelName);
         Room *createRoom(User &user, const CreateRoomActionData &createRoomActionData);
@@ -46,9 +47,17 @@ namespace business {
         void sendMessageToRoom(User& user, const wchar_t* message);
         void startMatch(User& user);
         void matchFinished(User& user);
+        void requestPlayerProfile(User& user, const wchar_t* playerName);
+        void sendPrivateMessageToUser(User& user, const wchar_t* userName, const wchar_t* message);
+        void requestUserSpot(User& user, const wchar_t* userName);
+        void requestGuildProfile(User& user, const wchar_t* guildName);
+        void sendGuildMessage(User& user, const wchar_t* message);
+        void requestGuildUserSpots(User& user, const wchar_t* guildName);
+        void setCoverStates(User& user, const int states[]);
         void sendMatchEventInfo(User& user, const u8* data, u32 dataSize);
         void sendMatchEventInfo2(User& user, const u8* data, u32 dataSize);
         void requestMatchMakerScreen(User& user);
+        void inviteUserToRoom(User& user, const wchar_t* userName);
 
         //
         void updateUserWithAllServerRooms(const User& user);

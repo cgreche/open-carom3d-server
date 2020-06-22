@@ -250,6 +250,18 @@ namespace business {
         int caneys; //+0x1D0
     };
 
+    struct UserPrivateMessage {
+        wchar_t playerName[PLAYER_NAME_MAX_LEN + 1];
+        wchar_t message[];
+    };
+
+    struct UserInvite {
+        wchar_t playerName[PLAYER_NAME_MAX_LEN + 1];
+        RoomInfoActionData roomInfo;
+        wchar_t roomPassword[ROOM_PASSWORD_MAX_LEN + 1];
+    };
+
+
 #pragma pack(pop)
 
 }

@@ -10,7 +10,7 @@
 #include <business/service/room_service.h>
 #include <core/server/carom3d/carom3d_protocol.h>
 #include "game_server.h"
-#include "actions.h"
+#include "recv_actions.h"
 
 namespace business {
 
@@ -23,10 +23,16 @@ namespace business {
 #define EXIT_MATCH_ACTION 0x08
 #define START_MATCH_ACTION 0x09
 #define END_MATCH_ACTION 0x0A
-#define PLAYER_PROFILE_REQUEST 0x35
-#define PERSONAL_MESSAGE_ACTION 0x36 //TODO(CGR)
+#define PLAYER_PROFILE_REQUEST_ACTION 0x35
+#define USER_PRIVATE_MESSAGE_ACTION 0x36
+#define USER_SPOT_REQUEST_ACTION 0x37
+#define GUILD_PROFILE_REQUEST_ACTION 0x38
+#define GUILD_MESSAGE_ACTION 0x39
+#define GUILD_USER_SPOTS_REQUEST_ACTION 0x3A
+#define SET_COVER_STATES_ACTION 0x3B
 #define MATCH_EVENT_INFO_ACTION 0x69
 #define MATCH_EVENT_INFO_ACTION2 0x6B
+#define INVITE_USER_TO_ROOM_ACTION 0x6C
 #define ROOM_SLOT_MODIFICATION_ACTION 0x6D
 #define ROOM_KICK_PLAYER_ACTION 0x96
 #define MATCH_MAKER_SCREEN_REQUEST 0x97
@@ -44,7 +50,14 @@ namespace business {
             { EXIT_MATCH_ACTION, new ExitRoomAction },
 			{ START_MATCH_ACTION, new StartMatchAction },
 			{ END_MATCH_ACTION, new EndMatchAction },
-			{ PLAYER_PROFILE_REQUEST, new PlayerProfileRequestAction },
+            { PLAYER_PROFILE_REQUEST_ACTION, new PlayerProfileRequestAction },
+            { USER_PRIVATE_MESSAGE_ACTION, new UserPrivateMessageAction },
+            { USER_SPOT_REQUEST_ACTION, new UserSpotAction },
+            { GUILD_PROFILE_REQUEST_ACTION, new GuildProfileRequestAction },
+            { GUILD_MESSAGE_ACTION, new GuildMessageAction },
+            { GUILD_USER_SPOTS_REQUEST_ACTION, new GuildUserSpotsRequestAction },
+            { SET_COVER_STATES_ACTION, new SetCoverStatesAction },
+            { INVITE_USER_TO_ROOM_ACTION, new InviteUserToRoomAction },
             { MATCH_EVENT_INFO_ACTION, new MatchEventInfoAction },
             { MATCH_EVENT_INFO_ACTION2, new MatchEventInfoAction2 },
             { ROOM_SLOT_MODIFICATION_ACTION, new RoomSlotModificationAction },
@@ -80,7 +93,7 @@ namespace business {
                 }
                 printf("\n");
                 for(u8 byte : actionData.data()) {
-                    printf("%c ", byte <= 0x7F ? byte : ' ');
+                    printf("%c ", (byte >= 0x20 && byte <= 0x7F) ? byte : ' ');
                 }
                 printf("\n\n");
             }

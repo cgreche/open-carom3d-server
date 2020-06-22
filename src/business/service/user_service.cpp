@@ -7,6 +7,7 @@
 #include <core/server/client_session.h>
 #include <business/api/messaging.h>
 #include <business/game_server/game_server.h>
+#include <business/game_server/send_actions.h>
 #include <business/util/action_dispatcher.h>
 #include <business/util/destination.h>
 #include <business/service/account_service.h>
@@ -23,8 +24,16 @@ namespace business {
         return g_userService;
     }
 
-    User *UserService::getUser(core::ClientSession &clientSession) {
+    User* UserService::getUser(core::ClientSession& clientSession) {
         return m_clientsUsers[clientSession.sessionId()];
+    }
+
+    User* UserService::findUser(const wchar_t* userName) {
+        Account* account = AccountService::getInstance().findAccount(userName);
+        if(nullptr == account)
+            return nullptr;
+
+        return m_usersAccounts[account];
     }
 
 	void sendClientVersion(User& user) {
@@ -228,6 +237,79 @@ namespace business {
         RoomService::getInstance().userFinishedPlaying(*room, user);
     }
 
+    void UserService::requestPlayerProfile(User& user, const wchar_t* playerName) {
+        User* targetUser = findUser(playerName);
+        if(nullptr == targetUser) {
+            //TODO(CGR): send couldn't find player
+            return;
+        }
+
+        user.sendAction(PlayerProfileActionTemplate(*targetUser->player()).data());
+    }
+
+
+    void UserService::sendPrivateMessageToUser(User& user, const wchar_t* userName, const wchar_t* message) {
+        User* targetUser = findUser(userName);
+        u32 result;
+        //TODO(CGR): change literal to ALIAS/Enums
+        if(nullptr == targetUser)
+            result = 1;
+        else if(targetUser->inCover(COVER_MESSAGE))
+            result = 2;
+        else
+            result = 0;
+
+        if(result == 0)
+            targetUser->sendAction(UserPrivateMessageActionTemplate(userName, message).data());
+        user.sendAction(ActionData(0x3D,(u8*)&result,sizeof(u32)));
+    }
+
+    void UserService::requestUserSpot(User& user, const wchar_t* userName) {
+        User* targetUser = findUser(userName);
+        if(nullptr == targetUser || nullptr == targetUser->spot()) {
+            user.sendAction(ActionData(0x3E,userName, (PLAYER_NAME_MAX_LEN + 1) * 2));
+            return;
+        }
+
+        const wchar_t* channelName = L"";
+        const wchar_t* roomName = L"";
+        const wchar_t* serverName = L"";
+
+        UserSpot* spot = targetUser->spot();
+        if(spot->isOfType(0)) {
+            channelName = spot->name();
+        }
+        else if(spot->isOfType(1)) {
+            roomName = spot->name();
+        }
+
+        GameServer& server = targetUser->server();
+        serverName = L""; //TODO(CGR): serverName
+
+        ActionBuilder builder(0x3F);
+        builder.add(targetUser->player()->name(), (PLAYER_NAME_MAX_LEN + 1) * 2);
+        builder.add(channelName, 31 * 2);
+        builder.add(roomName, (40 + 1) * 2);
+        builder.add(serverName, (40 + 1) * 2);
+        user.sendAction(builder.build());
+    }
+
+    void UserService::requestGuildProfile(User& user, const wchar_t* guildName) {
+
+    }
+
+    void UserService::sendGuildMessage(User& user, const wchar_t* message) {
+
+    }
+    
+    void UserService::requestGuildUserSpots(User& user, const wchar_t* guildName) {
+
+    }
+
+    void UserService::setCoverStates(User& user, const int states[]) {
+        user.setCoverStates((int*)states);
+    }
+
     void UserService::sendMatchEventInfo(User& user, const u8* data, u32 dataSize) {
         Room* room = user.roomIn();
         if(!room)
@@ -267,6 +349,37 @@ namespace business {
 
         RoomService::getInstance().setUserOutOfGameScreen(*room, user);
 	}
+
+    void UserService::inviteUserToRoom(User& user, const wchar_t* userName) {
+        Room* room = user.roomIn();
+        if(nullptr == room)
+            return;
+
+        u32 result;
+        User* targetUser = findUser(userName);
+        //TODO(CGR): change literals to aliases
+        if(nullptr == targetUser)
+            result = 1;
+        else if(targetUser->inCover(COVER_IN))
+            result = 2;
+        else if(targetUser->inRoom())
+            result = 3;
+        else
+            result = 0;
+        
+
+        if(result == 0)
+            user.sendAction(UserInviteActionTemplate(user, *user.roomIn()).data());
+
+        //0 - Success
+        //1 - Player not in this server
+        //2 - Player in coverin
+        //3 - Player in another room
+        //4 - Unknown
+        ActionBuilder builder(0x4C);
+        builder.add(result);
+        user.sendAction(builder.build());
+    }
 
     void UserService::updateUserWithAllServerRooms(const User& user) {
         GameServer& gameServer = user.server();

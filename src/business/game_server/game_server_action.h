@@ -7,12 +7,14 @@
 
 #include <list>
 #include <core/server/carom3d/action.h>
+#include <core/server/carom3d/util/action_builder.h>
 
 namespace business {
 
     class User;
     using core::Action;
     using core::ActionData;
+    using core::ActionBuilder;
 
     template <class T>
     class GameServerAction : public core::Action {

@@ -71,20 +71,50 @@ namespace business {
 
     class PlayerProfileRequestAction : public GameServerAction<wchar_t> {
     public:
-        void execute(const ActionData &action, User &user, const wchar_t *playerName) override {
-            PlayerProfileData data = {0};
-            data.playerNumber = 0;
-            ::wcscpy(data.playerName, L"GOD");
-            ::wcscpy(data.playerGuild, L"");
-            ::wcscpy(data.loggedServerName, L"Fake-1");
-            data.serverId = 15000;
-            data.country[0] = L'B';
-            data.country[1] = L'R';
-            data.wins = 30 * 10;
-            data.level = 1;
+        void execute(const ActionData& action, User& user, const wchar_t* playerName) override {
+            UserService::getInstance().requestPlayerProfile(user, playerName);
+        }
+    };
 
-            ActionData playerProfileAction(0x3A, &data, sizeof(data));
-            user.sendAction(playerProfileAction);
+    class UserPrivateMessageAction : public GameServerAction<UserPrivateMessage> {
+    public:
+        void execute(const ActionData& action, User& user, const UserPrivateMessage* privateMessage) override {
+            UserService::getInstance().sendPrivateMessageToUser(user, privateMessage->playerName, privateMessage->message);
+        }
+    };
+
+    class UserSpotAction : public GameServerAction<wchar_t> {
+    public:
+        void execute(const ActionData& action, User& user, const wchar_t* playerName) override {
+            UserService::getInstance().requestUserSpot(user, playerName);
+        }
+    };
+
+    class GuildProfileRequestAction : public GameServerAction<wchar_t> {
+    public:
+        void execute(const ActionData& action, User& user, const wchar_t* guildName) override {
+            UserService::getInstance().requestGuildProfile(user, guildName);
+        }
+    };
+
+    class GuildMessageAction : public GameServerAction<wchar_t> {
+    public:
+        void execute(const ActionData& action, User& user, const wchar_t* playerName) override {
+            UserService::getInstance().sendGuildMessage(user, playerName);
+        }
+    };
+
+    class GuildUserSpotsRequestAction : public GameServerAction<wchar_t> {
+    public:
+        void execute(const ActionData& action, User& user, const wchar_t* guildName) override {
+            UserService::getInstance().requestGuildUserSpots(user, guildName);
+        }
+    };
+
+    class SetCoverStatesAction : public GameServerAction<int> {
+    public:
+        void execute(const ActionData& action, User& user, const int states[]) override {
+            UserService::getInstance().setCoverStates(user, states);
         }
     };
 
@@ -104,6 +134,12 @@ namespace business {
         }
     };
 
+    class InviteUserToRoomAction : public GameServerAction<wchar_t> {
+    public:
+        void execute(const ActionData& action, User& user, const wchar_t* playerName) override {
+            UserService::getInstance().inviteUserToRoom(user, playerName);
+        }
+    };
 
     class RoomSlotModificationAction : public GameServerAction<RoomSlotModificationActionData> {
         void execute(const ActionData &action, User &user, const RoomSlotModificationActionData *data) override {

@@ -7,7 +7,8 @@ include_directories(../src)
 include_directories(../src/core/lib)
 
 add_executable(open_carom3d_server
-        ../src/business/game_server/actions.h
+        ../src/business/game_server/recv_actions.h
+        ../src/business/game_server/send_actions.h
         ../src/business/game_server/game_server.cpp
         ../src/business/game_server/game_server.h
         ../src/business/game_server/game_server_action.h
@@ -65,6 +66,9 @@ add_executable(open_carom3d_server
         ../src/core/server/carom3d/crypto.h
         ../src/core/server/carom3d/carom3d_message_parser.cpp
         ../src/core/server/carom3d/carom3d_message_parser.h
+        ../src/core/server/carom3d/util/action_builder.h
+        ../src/core/server/http/http_server.cpp
+        ../src/core/server/http/http_server.h
         ../src/core/server/client_session.cpp
         ../src/core/server/client_session.h
         ../src/core/server/messaging_protocol.h
