@@ -78,11 +78,11 @@ namespace business {
         return type == 1;
     }
 
-    const wchar_t* Room::description() {
+    const wchar_t* Room::description() const {
         return L"Room";
     }
 
-    const wchar_t *Room::name() {
+    const wchar_t *Room::name() const {
         return m_title.c_str();
     }
 

@@ -14,11 +14,11 @@ namespace business {
         return type == 0;
     }
 
-    const wchar_t *Channel::description() {
+    const wchar_t *Channel::description() const {
         return L"Channel";
     }
 
-    const wchar_t *Channel::name() {
+    const wchar_t *Channel::name() const {
         return m_channelName.c_str();
     }
 

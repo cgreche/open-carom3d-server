@@ -8,6 +8,7 @@
 #include <list>
 #include <core/server/carom3d/action.h>
 #include <core/server/carom3d/util/action_builder.h>
+#include <core/server/carom3d/util/action_template.h>
 
 namespace business {
 
@@ -15,6 +16,7 @@ namespace business {
     using core::Action;
     using core::ActionData;
     using core::ActionBuilder;
+    using core::ActionTemplate;
 
     template <class T>
     class GameServerAction : public core::Action {

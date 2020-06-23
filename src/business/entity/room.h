@@ -86,8 +86,8 @@ namespace business {
         Room(GameServer& server, u32 id, const wchar_t* title, User* creator, u32 maxPlayers, const Room::GameInfo& gameInfo);
 
         bool isOfType(int type) override;
-        const wchar_t* description() override;
-        const wchar_t *name() override;
+        const wchar_t* description() const override;
+        const wchar_t *name() const override;
 
         int insertUser(User& user) override;
         void removeUser(User& user) override;
@@ -118,7 +118,6 @@ namespace business {
 
 		GameServer& server() { return m_server; }
         u32 id() const { return m_id; }
-        const wchar_t *title() const { return m_title.c_str(); }
         const wchar_t *password() const { return m_password.c_str(); }
         User *roomMaster() const { return m_roomMasterListIndex != -1 ? m_roomUsers[m_roomMasterListIndex].user : nullptr; }
         int roomMasterListIndex() const { return m_roomMasterListIndex;  }

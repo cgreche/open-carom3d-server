@@ -10,10 +10,56 @@
 
 namespace business {
 
-    class ActionTemplate {
+    static void fillRoomInfo(RoomInfoActionData& roomInfo, const Room& room) {
+        const Room::GameInfo& game = room.gameInfo();
+        roomInfo.roomId = room.id();
+        roomInfo.difficulty = game.difficulty;
+        ::wcscpy(roomInfo.roomName, room.name());
+        roomInfo.playersIn = room.usersInCount();
+        roomInfo.maxPlayers = room.maxPlayers();
+        roomInfo.u = 3;
+        roomInfo.levelLimit = 0;
+        roomInfo.gameType = game.gameType;
+        roomInfo.roomType = game.roomType;
+        roomInfo.matchType = game.matchType;
+        roomInfo.roomState = room.inGame();
+        ::wcscpy(roomInfo.roomMaster, room.roomMaster() ? room.roomMaster()->player()->name() : L"");
+        roomInfo.straightWins = room.straightWins();
+        roomInfo.caneys = game.caneys;
+    }
+
+    class RoomJoinActionTemplate : public ActionTemplate {
+        const Room& m_room;
+
     public:
-        virtual ~ActionTemplate() {}
-        virtual const ActionData data() = 0;
+        RoomJoinActionTemplate(const Room& room)
+            : m_room(room) {}
+
+        const ActionData data() override {
+            const Room& room = m_room;
+            User* roomMaster = room.roomMaster();
+
+            JoinedRoomData roomData = { 0 };
+            ::wcscpy(roomData.roomTitle, room.name());
+            ::wcscpy(roomData.roomMaster, roomMaster == nullptr ? L"" : roomMaster->player()->name());
+            roomData.unk52 = 2;
+            roomData.state = room.state();
+
+            const Room::GameInfo& game = room.gameInfo();
+            roomData.roomType = game.roomType;
+            roomData.gameType = game.gameType;
+            roomData.matchType = game.matchType;
+            roomData.difficulty = game.difficulty;
+
+            //TODO(CGR): update slots to everyone in the room if match type == CHALLENGE
+            //room slot infos
+            const Room::SlotInfos& slotInfos = room.slotInfos();
+            for(int i = 0; i < 30; ++i) {
+                roomData.slotInfos.slotState[i] = slotInfos.state[i];
+                roomData.slotInfos.playerListIndex[i] = slotInfos.playerListIndex[i];
+            }
+            return ActionData(0x24, &roomData, sizeof(roomData));
+        }
     };
 
     class RoomCreationActionTemplate : public ActionTemplate {
@@ -27,9 +73,8 @@ namespace business {
             const Room& room = m_room;
             User* roomMaster = room.roomMaster();
 
-            //TODO(CGR): modularize
             CreatedRoomData roomData = { 0 };
-            ::wcscpy(roomData.roomTitle, room.title());
+            ::wcscpy(roomData.roomTitle, room.name());
             ::wcscpy(roomData.roomMaster, roomMaster == nullptr ? L"" : roomMaster->player()->name());
             roomData.unk52 = 2;
 
@@ -49,28 +94,6 @@ namespace business {
             return ActionData(0x25, &roomData, sizeof(roomData));
         }
 
-    };
-
-    class PlayerProfileActionTemplate : public ActionTemplate {
-        Player& m_player;
-
-    public:
-        explicit PlayerProfileActionTemplate(Player &player)
-            : m_player(player) {
-        }
-
-        const ActionData data() override {
-            PlayerProfileData data = { 0 };
-            data.playerNumber = 0;
-            ::wcscpy(data.playerName, m_player.name());
-            ::wcscpy(data.playerGuild, L"");
-            ::wcscpy(data.loggedServerName, L""); //TODO(CGR): get server name
-            data.serverId = 0; //TODO(CGR): get server id
-            ::wcscpy(data.country, L"BR"); //TODO(CGR): ip_to_country
-            data.wins = 0 * 10;
-            data.level = 1;
-            return ActionData(0x3A, &data, sizeof(data));
-        }
     };
 
     class RoomPlayerJoinActionTemplate : public ActionTemplate {
@@ -116,6 +139,28 @@ namespace business {
         }
     };
 
+    class PlayerProfileActionTemplate : public ActionTemplate {
+        Player& m_player;
+
+    public:
+        explicit PlayerProfileActionTemplate(Player& player)
+            : m_player(player) {
+        }
+
+        const ActionData data() override {
+            PlayerProfileData data = { 0 };
+            data.playerNumber = m_player.id();
+            ::wcscpy(data.playerName, m_player.name());
+            ::wcscpy(data.playerGuild, L"");
+            ::wcscpy(data.loggedServerName, L""); //TODO(CGR): get server name
+            data.serverId = 0; //TODO(CGR): get server id
+            ::wcscpy(data.country, L"BR"); //TODO(CGR): ip_to_country
+            data.wins = 0 * 10;
+            data.level = m_player.level();
+            return ActionData(0x3A, &data, sizeof(data));
+        }
+    };
+
     class UserPrivateMessageActionTemplate : public ActionTemplate {
         const wchar_t* m_userName;
         const wchar_t* m_message;
@@ -145,22 +190,40 @@ namespace business {
         const ActionData data() override {
             UserInvite userInvite;
             ::wcscpy(userInvite.playerName, m_user.player()->name());
-
-            //TODO: complete
-            RoomInfoActionData& roomInfo = userInvite.roomInfo;
-            ::wcscpy(roomInfo.roomName, m_room.name());
-            roomInfo.roomId = m_room.id();
-            roomInfo.difficulty = m_room.gameInfo().difficulty;
-            roomInfo.matchType = m_room.gameInfo().matchType;
-            roomInfo.roomState = m_room.state();
-            //
-
+            fillRoomInfo(userInvite.roomInfo, m_room);
             ::wcscpy(userInvite.roomPassword, m_room.password());
             return ActionData(0x4B, &userInvite, sizeof(userInvite));
         }
     };
 
-}
+    class ExistingRoomsNotificationActionTemplate : public ActionTemplate {
+        const Room& m_room;
 
+    public:
+        ExistingRoomsNotificationActionTemplate(const Room& room)
+            : m_room(room) {}
+
+        const ActionData data() override {
+            RoomInfoActionData actionData;
+            fillRoomInfo(actionData, m_room);
+            return ActionData(0x2B, &actionData, sizeof(actionData));
+        }
+    };
+
+    class RoomCreationNotificationActionTemplate : public ActionTemplate {
+        const Room& m_room;
+
+    public:
+        RoomCreationNotificationActionTemplate(const Room& room)
+            : m_room(room) {}
+
+        const ActionData data() override {
+            RoomInfoActionData actionData;
+            fillRoomInfo(actionData, m_room);
+            return ActionData(0x2A, &actionData, sizeof(actionData));
+        }
+    };
+
+}
 
 #endif //__OPEN_CAROM3D_SERVER_ACTIONS_H__

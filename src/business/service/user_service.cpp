@@ -120,6 +120,7 @@ namespace business {
     }
 
     void UserService::logoutUser(User &user) {
+        removeUserFromCurrentSpot(user);
         if(nullptr != user.account())
             m_usersAccounts[user.account()] = nullptr;
         m_clientsUsers.erase(user.sessionId());
@@ -366,7 +367,6 @@ namespace business {
             result = 3;
         else
             result = 0;
-        
 
         if(result == 0)
             user.sendAction(UserInviteActionTemplate(user, *user.roomIn()).data());
@@ -384,28 +384,9 @@ namespace business {
     void UserService::updateUserWithAllServerRooms(const User& user) {
         GameServer& gameServer = user.server();
         for(auto room : gameServer.rooms()) {
-            const Room::GameInfo& game = room->gameInfo();
-            RoomInfoActionData actionData;
-            actionData.roomId = room->id();
-            actionData.difficulty = game.difficulty;
-            ::wcsncpy(actionData.roomName, room->title(), ROOM_TITLE_MAX_LEN);
-            actionData.roomName[ROOM_TITLE_MAX_LEN] = L'\0';
-            actionData.playersIn = room->usersInCount();
-            actionData.maxPlayers = room->maxPlayers();
-            actionData.u = 10;
-            actionData.levelLimit = 12;
-            actionData.gameType = game.gameType;
-            actionData.roomType = game.roomType;
-            actionData.matchType = game.matchType;
-            actionData.roomState = room->inGame() ? 2 : 1;
-            User* roomMaster = room->roomMaster();
-            ::wcsncpy(actionData.roomMaster, roomMaster ? roomMaster->player()->name() : L"", PLAYER_NAME_MAX_LEN);
-            actionData.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
-            actionData.straightWins = room->straightWins();
-            actionData.caneys = game.caneys;
-
-            ActionData roomInfoAction(0x2B, &actionData, sizeof(actionData));
-            ActionDispatcher::prepare().action(roomInfoAction).send(UserDestination(user));
+            ActionDispatcher::prepare()
+                .action(ExistingRoomsNotificationActionTemplate(*room).data())
+                .send(UserDestination(user));
         }
 
         ActionData roomInfoEndAction(0x62);

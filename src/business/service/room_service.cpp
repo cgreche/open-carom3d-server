@@ -94,31 +94,7 @@ namespace business {
         user.setSpot(&room);
 
         updateRoom(room);
-
-        //TODO(CGR): modularize
-        JoinedRoomData roomData = {0};
-        ::wcsncpy(roomData.roomTitle, room.title(), ROOM_TITLE_MAX_LEN + 1);
-        roomData.roomTitle[ROOM_TITLE_MAX_LEN] = L'\0';
-        ::wcsncpy(roomData.roomMaster, room.roomMaster()->player()->name(), PLAYER_NAME_MAX_LEN + 1);
-        roomData.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
-        roomData.unk52 = 2;
-        roomData.state = room.state();
-
-        const Room::GameInfo& game = room.gameInfo();
-        roomData.roomType = game.roomType;
-        roomData.gameType = game.gameType;
-        roomData.matchType = game.matchType;
-        roomData.difficulty = game.difficulty;
-
-        //TODO(CGR): update slots to everyone in the room if match type == CHALLENGE
-        //room slot infos
-        const Room::SlotInfos &slotInfos = room.slotInfos();
-        for(int i = 0; i < 30; ++i) {
-            roomData.slotInfos.slotState[i] = slotInfos.state[i];
-            roomData.slotInfos.playerListIndex[i] = slotInfos.playerListIndex[i];
-        }
-        ActionData roomCreatedAction(0x24, &roomData, sizeof(roomData));
-        user.sendAction(roomCreatedAction);
+        user.sendAction(RoomJoinActionTemplate(room).data());
 
         //get all players in room
         for(auto userListIndex : room.userQueue()) {
@@ -315,26 +291,9 @@ namespace business {
 
     //TODO(CGR): All following methods should be moved to ServerService?
     void RoomService::notifyServerOfRoomCreation(const GameServer& server, const Room& room) {
-        const Room::GameInfo& game = room.gameInfo();
-        RoomInfoActionData actionData;
-        actionData.roomId = room.id();
-        actionData.difficulty = game.difficulty;
-        ::wcsncpy(actionData.roomName, room.title(), ROOM_TITLE_MAX_LEN);
-        actionData.roomName[ROOM_TITLE_MAX_LEN] = L'\0';
-        actionData.playersIn = room.usersInCount();
-        actionData.maxPlayers = room.maxPlayers();
-        actionData.u = 3;
-        actionData.levelLimit = 10;
-        actionData.gameType = game.gameType;
-        actionData.roomType = game.roomType;
-        actionData.matchType = game.matchType;
-        actionData.roomState = room.inGame();
-        ::wcsncpy(actionData.roomMaster, room.roomMaster()->player()->name(), PLAYER_NAME_MAX_LEN);
-        actionData.roomMaster[PLAYER_NAME_MAX_LEN] = L'\0';
-        actionData.straightWins = room.straightWins();
-        actionData.caneys = game.caneys;
-        ActionData action(0x2A, &actionData, sizeof(actionData));
-        ActionDispatcher::prepare().action(action).send(ServerDestination(server, 1));
+
+        ActionDispatcher::prepare().action(RoomCreationNotifyActionTemplate(room)).send(ServerDestination(server, 1));
+
     }
 
 	void RoomService::notifyServerOfRoomMasterChange(const GameServer& server, const Room& room) {

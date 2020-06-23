@@ -112,13 +112,6 @@ namespace business {
 
     void GameServer::onClientDisconnection(core::ClientSession& client) {
         User& user = (User&)client;
-        UserSpot* spot = user.spot();
-        if(spot) {
-            if(spot->isOfType(0))
-                ChannelService::getInstance().removeUserFromChannel(*(Channel*)spot, user);
-            if(spot->isOfType(1))
-                RoomService::getInstance().removeUserFromRoom(*(Room*)spot, user);
-        }
         UserService::getInstance().logoutUser(user);
         this->Carom3DServer::onClientDisconnection(client);
     }
@@ -134,7 +127,7 @@ namespace business {
     Room *GameServer::getRoom(const wchar_t *title) {
         //TODO(CGR): more efficient way to find room
         for(auto room : m_rooms) {
-            if(::wcscmp(room->title(),title) == 0)
+            if(::wcscmp(room->name(),title) == 0)
                 return room;
         }
         return nullptr;
