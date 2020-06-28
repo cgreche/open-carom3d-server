@@ -42,32 +42,33 @@ namespace business {
         int matchType = newRoom->gameInfo().matchType;
         int gameType = newRoom->gameInfo().gameType;
         switch(matchType) {
-            //Normal game
-        case 0:
+
+        case MatchType::MATCH_NORMAL:
             //TODO(CGR): DeatchMatch and CardBall games
             //if(gameType ==)
             //slotStatesLayout = DeathMatchSlotLayout;
             //slotStatesLayout = CardBallSlotLayout;
             slotStatesLayout = NORMAL_GAME_SLOT_LAYOUT;
             break;
-        case 4:
+
+        case MatchType::MATCH_CHALLENGE:
             slotStatesLayout = CHALLENGE_ROOM_SLOT_LAYOUT;
             break;
 
-            //practice
-        case 5:
-            //TODO(CGR):
+        case MatchType::MATCH_PRACTICE: {
             slotStatesLayout = NORMAL_GAME_SLOT_LAYOUT;
-            break;
+            newRoom->setHidden(true);
+        }
+
         default:
             break;
         }
+
         newRoom->setSlotStates((Room::SlotState*)slotStatesLayout);
 
         int listIndex = newRoom->insertUser(*user);
         user->setSpot(newRoom);
         newRoom->setUserToSlot(listIndex, ROOM_MASTER_SLOT);
-
 
         user->sendAction(RoomCreationActionTemplate(*newRoom).data());
         //TODO(CGR): room creation fail
@@ -84,7 +85,8 @@ namespace business {
         ActionData playerListEnd(0x63);
         ActionDispatcher::prepare().action(playerListEnd).send(UserDestination(*user));
 
-        notifyServerOfRoomCreation(newRoom->server(), *newRoom);
+        if(!newRoom->hidden())
+            notifyServerOfRoomCreation(newRoom->server(), *newRoom);
         return newRoom;
     }
 

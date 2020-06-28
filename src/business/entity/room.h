@@ -66,6 +66,7 @@ namespace business {
 
         RoomState m_state;
         bool m_closed;
+        bool m_hidden;
 
         Match *m_matchInfo;
 		int m_playingUserCount;
@@ -115,6 +116,7 @@ namespace business {
         void setPassword(const wchar_t *password) { m_password = password; }
 		void setState(RoomState state) { m_state = state; }
         void setClosed(bool closed) { m_closed = closed; }
+        void setHidden(bool hidden) { m_hidden = hidden; }
 
 		GameServer& server() { return m_server; }
         u32 id() const { return m_id; }
@@ -132,6 +134,7 @@ namespace business {
 
         const SlotInfos& slotInfos() const { return m_slots; }
         bool closed() const { return m_closed; }
+        bool hidden() const { return m_hidden; }
 
         bool inGame() const { return m_state == RoomState::IN_GAME; }
 

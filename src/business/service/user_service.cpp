@@ -383,6 +383,8 @@ namespace business {
     void UserService::updateUserWithAllServerRooms(const User& user) {
         GameServer& gameServer = user.server();
         for(auto room : gameServer.rooms()) {
+            if(room->hidden())
+                continue;
             ActionDispatcher::prepare()
                 .action(ExistingRoomsNotificationActionTemplate(*room).data())
                 .send(UserDestination(user));
