@@ -210,11 +210,11 @@ namespace business {
         }
     };
 
-    class RoomCreationNotificationActionTemplate : public ActionTemplate {
+    class RoomCreationNotifyActionTemplate : public ActionTemplate {
         const Room& m_room;
 
     public:
-        RoomCreationNotificationActionTemplate(const Room& room)
+        RoomCreationNotifyActionTemplate(const Room& room)
             : m_room(room) {}
 
         const ActionData data() override {

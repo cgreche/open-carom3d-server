@@ -29,7 +29,7 @@ namespace business {
     }
 
     Room* RoomService::createRoom(User *user, const wchar_t *title, const wchar_t *password, int maxPlayers, const Room::GameInfo& gameInfo) {
-        Room *newRoom;
+        Room* newRoom;
         user->server().createRoom(title, user, maxPlayers, gameInfo, &newRoom);
         if(nullptr == newRoom)
             return nullptr;
@@ -39,7 +39,6 @@ namespace business {
         const int* slotStatesLayout = nullptr;
 
         //TODO(CGR): create a MATCH_TYPE enum
-        //TODO(CGR): create a GAME_TYPE enum
         int matchType = newRoom->gameInfo().matchType;
         int gameType = newRoom->gameInfo().gameType;
         switch(matchType) {
@@ -292,7 +291,9 @@ namespace business {
     //TODO(CGR): All following methods should be moved to ServerService?
     void RoomService::notifyServerOfRoomCreation(const GameServer& server, const Room& room) {
 
-        ActionDispatcher::prepare().action(RoomCreationNotifyActionTemplate(room)).send(ServerDestination(server, 1));
+        ActionDispatcher::prepare()
+            .action(RoomCreationNotifyActionTemplate(room).data())
+            .send(ServerDestination(server, 1));
 
     }
 

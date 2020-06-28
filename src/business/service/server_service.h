@@ -7,12 +7,23 @@
 
 #include <list>
 
+#include <business/game_server/game_server.h>
+
 namespace core {
-    class ServerConfig;
     class Server;
+    class ServerConfig;
 }
 
 namespace business {
+    class GameServer;
+    class GameServerConfig;
+}
+
+namespace business {
+    class core::ServerConfig;
+    class core::Server;
+    class business::GameServer;
+    class business::GameServerConfig;
 
     class ServerService {
         std::list<core::Server *> m_servers;
@@ -20,7 +31,7 @@ namespace business {
     public:
         static ServerService &getInstance();
 
-        core::Server *startServer(const core::ServerConfig &serverConfig);
+        core::Server *startGameServer(const business::GameServerConfig &serverConfig);
 
         std::list<core::Server *> &getServerList();
 

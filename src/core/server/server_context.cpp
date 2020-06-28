@@ -46,7 +46,7 @@ namespace core {
     Server::Server(const ServerConfig &config) {
         m_config = config;
         m_ntServer.setEventHandler(new EventHandler(*this));
-        m_ntServer.listen(config.port);
+        m_ntServer.listen(config.hostInfo.port);
     }
 
     Server::~Server() {

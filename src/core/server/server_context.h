@@ -45,8 +45,7 @@ namespace core {
         virtual void onClientDataSent(ClientSession& client);
         virtual void onClientDisconnection(ClientSession& client);
 
-        const char *hostname() const { return m_config.host.c_str(); }
-        unsigned short port() const { return m_config.port; }
+        const ServerConfig& config() const { return m_config; }
 
         virtual ClientSession* client(unsigned long sessionId) {
             auto it = m_clients.find(sessionId);

@@ -8,6 +8,7 @@
 #include <list>
 #include <core/server/carom3d/carom3d_server.h>
 #include <business/entity/room.h>
+#include "game_server_config.h"
 
 namespace business {
 
@@ -16,10 +17,11 @@ namespace business {
     using core::ActionData;
 
     class GameServer : public core::Carom3DServer {
+        std::wstring m_qualifiedName;
         std::list<Room*> m_rooms;
 
     public:
-        explicit GameServer(const core::ServerConfig &config);
+        explicit GameServer(const GameServerConfig &config);
        
         void onClientDisconnection(core::ClientSession& client) override;
 
@@ -29,7 +31,11 @@ namespace business {
         Room* getRoom(const wchar_t* title);
         int destroyRoom(Room& room);
 
+        const std::wstring& qualifiedName() const { return m_qualifiedName; }
         const std::list<Room*>& rooms() const { return m_rooms; }
+
+
+        GameServerConfig gsConfig;
     };
 
 }

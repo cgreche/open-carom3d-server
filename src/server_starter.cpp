@@ -8,30 +8,76 @@
 
 #include <business/service/server_service.h>
 #include <business/management_server/management_server.h>
+#include <business/api/constants.h>
 #include <business/game_server/game_server.h>
+#include <business/game_server/game_server_config.h>
 #include <core/server/http/http_server.h>
 
+using namespace business;
 using namespace business::management;
 using namespace core;
 
+
+static std::vector<GameServerConfig> g_gameServerConfigs;
+int g_loadedGameServerCount = 0;
+
+void loadGameServerConfigs(std::string hostname, std::vector<GameServerConfig>& gameServerConfigs) {
+
+    gameServerConfigs.push_back({
+        {hostname, 9883},
+        GameServerEventType::NORMAL, L"Novice", 4, 200,
+        { ServerTemplateId::NOVICE, 1.0f, 0, 1000 }
+    });
+
+    gameServerConfigs.push_back({
+        {hostname, 9884},
+        GameServerEventType::NORMAL, L"Advanced", 4, 400,
+        { ServerTemplateId::ADVANCED, 1.0f, 1000, 1000000000 }
+    });
+
+    gameServerConfigs.push_back({
+        {hostname, 9885},
+        GameServerEventType::NORMAL, L"Expert", 4, 500,
+        { ServerTemplateId::EXPERT, 1.0f, 10000, 1000000000 }
+    });
+
+    gameServerConfigs.push_back({
+        {hostname, 9886},
+        GameServerEventType::NORMAL, L"Professional", 4, 600,
+        { ServerTemplateId::PROFESSIONAL, 1.0f, 100000, 1000000000 }
+    });
+
+    gameServerConfigs.push_back({
+        {hostname, 9887},
+        GameServerEventType::NORMAL, L"Free", 4, 100,
+        { ServerTemplateId::FREE, 1.0f, 0, 1000000000 }
+    });
+
+    gameServerConfigs.push_back({
+        {hostname, 9888},
+        GameServerEventType::NORMAL, L"Ranking", 4, 800,
+        { ServerTemplateId::RANKING, 1.0f, 1000, 1000000000 }
+    });
+
+    gameServerConfigs.push_back({
+        {hostname, 9889},
+        GameServerEventType::NORMAL, L"Training", 4, 0,
+        { ServerTemplateId::TRAINING, 1.0f, 0, 0 }
+    });
+}
+
+
 void runManagementServer(std::string hostname) {
-    ServerConfig managementServerConfig = { hostname, 9882 };
 
-    ServerConfig noviceSvConfig = { hostname, 9883 };
-    ServerConfig advancedSvConfig = { hostname, 9884 };
-    ServerConfig expertSvConfig = { hostname, 9885 };
-    ServerConfig proSvConfig = { hostname, 9886 };
-    ServerConfig trainingSvConfig = { hostname, 9887 };
-    ServerConfig freeSvConfig = { hostname, 9888 };
+    for(auto& config : g_gameServerConfigs) {
+        printf("Initializing %S game server... ", config.serverName.data());
+        business::ServerService::getInstance().startGameServer(config);
+        printf("Done.\n", config.serverName);
+        ++g_loadedGameServerCount;
+    }
 
+    ServerConfig managementServerConfig = { {hostname, 9882} };
     ManagementServer managementServer(managementServerConfig);
-    business::ServerService::getInstance().startServer(noviceSvConfig);
-    business::ServerService::getInstance().startServer(advancedSvConfig);
-    business::ServerService::getInstance().startServer(expertSvConfig);
-    business::ServerService::getInstance().startServer(proSvConfig);
-    business::ServerService::getInstance().startServer(trainingSvConfig);
-    business::ServerService::getInstance().startServer(freeSvConfig);
-
     managementServer.run();
 }
 
@@ -48,8 +94,12 @@ int main(int argc, char *argv[]) {
     hostFile.open("resources/host.txt");
     std::getline(hostFile, hostName);
 
+    loadGameServerConfigs(hostName, g_gameServerConfigs);
     std::thread servers(runManagementServer, hostName);
     servers.detach();
+
+    while(g_loadedGameServerCount < g_gameServerConfigs.size())
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
     std::thread httpServers(runHTTPServer, hostName);
     httpServers.detach();

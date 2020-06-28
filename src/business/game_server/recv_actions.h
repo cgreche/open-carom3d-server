@@ -83,7 +83,7 @@ namespace business {
         }
     };
 
-    class UserSpotAction : public GameServerAction<wchar_t> {
+    class UserSpotRequestAction : public GameServerAction<wchar_t> {
     public:
         void execute(const ActionData& action, User& user, const wchar_t* playerName) override {
             UserService::getInstance().requestUserSpot(user, playerName);

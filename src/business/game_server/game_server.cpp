@@ -52,7 +52,7 @@ namespace business {
 			{ END_MATCH_ACTION, new EndMatchAction },
             { PLAYER_PROFILE_REQUEST_ACTION, new PlayerProfileRequestAction },
             { USER_PRIVATE_MESSAGE_ACTION, new UserPrivateMessageAction },
-            { USER_SPOT_REQUEST_ACTION, new UserSpotAction },
+            { USER_SPOT_REQUEST_ACTION, new UserSpotRequestAction },
             { GUILD_PROFILE_REQUEST_ACTION, new GuildProfileRequestAction },
             { GUILD_MESSAGE_ACTION, new GuildMessageAction },
             { GUILD_USER_SPOTS_REQUEST_ACTION, new GuildUserSpotsRequestAction },
@@ -65,6 +65,22 @@ namespace business {
             { MATCH_MAKER_SCREEN_REQUEST, new MatchMakerScreenRequestAction },
             { ROOM_MESSAGE_ACTION, new RoomMessageAction },
     };
+
+    static std::wstring resolveTableTypeName(int tableType) {
+        switch(tableType) {
+        case 0:
+            return L"No Pocket";
+
+        case 1:
+            return L"Pocket";
+
+        case 2:
+            return L"Snooker";
+
+        default:
+            return L"All";
+        }
+    }
 
 
     class GameServerProtocol : public core::Carom3DProtocol {
@@ -102,8 +118,12 @@ namespace business {
 
     static GameServerProtocol g_protocol;
 
-    GameServer::GameServer(const core::ServerConfig &config)
-            : core::Carom3DServer(config) {
+    GameServer::GameServer(const business::GameServerConfig &config)
+            : core::Carom3DServer(config)
+            , gsConfig(config) {
+        m_qualifiedName = config.serverName;
+        m_qualifiedName += L" - ";
+        m_qualifiedName += resolveTableTypeName(config.tableType);
     }
 
     core::MessagingProtocol* GameServer::messagingProtocol() {

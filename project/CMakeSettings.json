@@ -1,0 +1,37 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_CXX_FLAGS_DEBUG",
+          "value": "/ZI /Ob0 /Od /RTC1",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS_RELWITHDEBINFO",
+          "value": "/ZI /O2 /Ob1 /DNDEBUG",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS_DEBUG",
+          "value": "/ZI /Ob0 /Od /RTC1",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS_RELWITHDEBINFO",
+          "value": "/ZI /O2 /Ob1 /DNDEBUG",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}

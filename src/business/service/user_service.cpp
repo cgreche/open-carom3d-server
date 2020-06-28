@@ -284,8 +284,7 @@ namespace business {
             roomName = spot->name();
         }
 
-        GameServer& server = targetUser->server();
-        serverName = L""; //TODO(CGR): serverName
+        serverName = targetUser->server().qualifiedName().data();
 
         ActionBuilder builder(0x3F);
         builder.add(targetUser->player()->name(), (PLAYER_NAME_MAX_LEN + 1) * 2);

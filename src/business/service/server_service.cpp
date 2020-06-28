@@ -2,9 +2,11 @@
 // Created by CGR on 17/05/2020.
 //
 
-#include "server_service.h"
+
 #include <business/game_server/game_server.h>
+#include <business/game_server/game_server_config.h>
 #include <thread>
+#include "server_service.h"
 
 namespace business {
     using namespace core;
@@ -22,8 +24,8 @@ namespace business {
         return g_serverService;
     }
 
-    Server *ServerService::startServer(const ServerConfig &serverConfig) {
-        Server *server = new GameServer(serverConfig);
+    core::Server* ServerService::startGameServer(const business::GameServerConfig& serverConfig) {
+        GameServer *server = new GameServer(serverConfig);
         auto t = new std::thread(runServer, server);
         t->detach();
         m_threads.emplace_back(t);
