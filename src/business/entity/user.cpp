@@ -16,6 +16,9 @@ namespace business {
         m_account = nullptr;
         m_player = nullptr;
         m_spot = nullptr;
+        m_coverStates[COVER_MESSAGE] = true;
+        m_coverStates[COVER_GUILD] = true;
+        m_coverStates[COVER_IN] = true;
     }
 
     void User::setAccount(Account *account) {
