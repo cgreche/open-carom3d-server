@@ -261,7 +261,7 @@ namespace business {
             result = 0;
 
         if(result == 0)
-            targetUser->sendAction(UserPrivateMessageActionTemplate(userName, message).data());
+            targetUser->sendAction(UserPrivateMessageActionTemplate(user.player()->name(), message).data());
         user.sendAction(ActionData(0x3D,(u8*)&result,sizeof(u32)));
     }
 
@@ -368,7 +368,7 @@ namespace business {
             result = 0;
 
         if(result == 0)
-            user.sendAction(UserInviteActionTemplate(user, *user.roomIn()).data());
+            targetUser->sendAction(UserInviteActionTemplate(user, *user.roomIn()).data());
 
         //0 - Success
         //1 - Player not in this server
