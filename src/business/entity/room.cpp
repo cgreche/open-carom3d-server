@@ -47,6 +47,7 @@ namespace business {
         m_maxUsers = maxUsers;
         m_gameInfo = gameInfo;
         m_closed = false;
+        m_hidden = false;
         m_matchInfo = nullptr;
         m_straightWins = 0;
         m_usersIn = 0;
