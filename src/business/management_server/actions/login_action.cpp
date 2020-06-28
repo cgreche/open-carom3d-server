@@ -42,7 +42,7 @@ namespace business { namespace management {
         MSLoginResult loginResult = {
             result,
             L"",
-            (unsigned long)1500, 0, (unsigned long)0x3C,
+            (unsigned long)player->points(), 0, (unsigned long)0x3C,
             0, 0, {0, 0, 0, 0, 0, 0}, 0, 0, 0,
             {0, 0, 0, 0, 0, 0, 0, 0},
             0,
