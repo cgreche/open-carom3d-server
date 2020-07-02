@@ -358,7 +358,7 @@ namespace business {
         u32 result;
         User* targetUser = findUser(userName);
         //TODO(CGR): change literals to aliases
-        if(nullptr == targetUser)
+        if(nullptr == targetUser || &targetUser->server() != &user.server())
             result = 1;
         else if(targetUser->inCover(COVER_IN))
             result = 2;
