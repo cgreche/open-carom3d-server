@@ -22,7 +22,7 @@ namespace business {
         roomInfo.gameType = game.gameType;
         roomInfo.roomType = game.roomType;
         roomInfo.matchType = game.matchType;
-        roomInfo.roomState = room.inGame();
+        roomInfo.roomState = room.state();
         ::wcscpy(roomInfo.roomMaster, room.roomMaster() ? room.roomMaster()->player()->name() : L"");
         roomInfo.straightWins = room.straightWins();
         roomInfo.caneys = game.caneys;
