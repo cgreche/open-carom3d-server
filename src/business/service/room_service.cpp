@@ -44,11 +44,16 @@ namespace business {
         switch(matchType) {
 
         case MatchType::MATCH_NORMAL:
-            //TODO(CGR): DeatchMatch and CardBall games
-            //if(gameType ==)
-            //slotStatesLayout = DeathMatchSlotLayout;
-            //slotStatesLayout = CardBallSlotLayout;
-            slotStatesLayout = NORMAL_GAME_SLOT_LAYOUT;
+            if(gameType == GameType::GAME_DEATH_MATCH_NORMAL
+                || gameType == GameType::GAME_DEATH_MATCH_HIGH
+                || gameType == GameType::GAME_DEATH_MATCH_U
+                || gameType == GameType::GAME_DEATH_MATCH_U2)
+                slotStatesLayout = DEATH_MATCH_SLOT_LAYOUT;
+            else if(gameType == GameType::GAME_CARDBALL_NORMAL
+                || gameType == GameType::GAME_CARDBALL_HIGH)
+                slotStatesLayout = CARD_BALL_SLOT_LAYOUT;
+            else
+                slotStatesLayout = NORMAL_GAME_SLOT_LAYOUT;
             break;
 
         case MatchType::MATCH_CHALLENGE:
