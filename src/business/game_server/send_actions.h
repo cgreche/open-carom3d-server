@@ -111,6 +111,7 @@ namespace business {
             ::wcscpy(roomPlayer.id, player.name());
             roomPlayer.id[PLAYER_NAME_MAX_LEN] = L'\0';
             ::wcscpy(roomPlayer.country, L"BR");
+            roomPlayer.accountNumber = player.id();
             roomPlayer.level = player.level();
             roomPlayer.listIndex = m_listIndex;
             roomPlayer.cueId = 3000;
