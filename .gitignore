@@ -5,3 +5,5 @@
 /.vs
 /project/out/build/x64-Debug
 /project/out/build/x64-Debug (padrão)
+/project/out/build/x64-Release
+/project/CMakeSettings.json
