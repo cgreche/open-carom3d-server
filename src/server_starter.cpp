@@ -17,6 +17,8 @@ using namespace business;
 using namespace business::management;
 using namespace core;
 
+#define USE_GAME_SERVERS
+#define USE_HTTP_SERVER
 
 static std::vector<GameServerConfig> g_gameServerConfigs;
 int g_loadedGameServerCount = 0;
@@ -62,15 +64,16 @@ void loadGameServerConfigs(std::string hostname, std::vector<GameServerConfig>& 
     gameServerConfigs.push_back({
         {hostname, 9889},
         GameServerEventType::NORMAL, L"Training", 4, 0,
-        { ServerTemplateId::TRAINING, 1.0f, 0, 0 }
+        { ServerTemplateId::TRAINING, 0.0f, 0, 0 }
     });
+
 }
 
 
 void runManagementServer(std::string hostname) {
 
     for(auto& config : g_gameServerConfigs) {
-        printf("Initializing %S game server... ", config.serverName.data());
+        printf("Initializing %S game server (%s:%d)... ", config.serverName.data(), config.hostInfo.hostname.data(), config.hostInfo.port);
         business::ServerService::getInstance().startGameServer(config);
         printf("Done.\n", config.serverName);
         ++g_loadedGameServerCount;
@@ -94,15 +97,19 @@ int main(int argc, char *argv[]) {
     hostFile.open("resources/host.txt");
     std::getline(hostFile, hostName);
 
+#ifdef USE_GAME_SERVERS
     loadGameServerConfigs(hostName, g_gameServerConfigs);
     std::thread servers(runManagementServer, hostName);
     servers.detach();
 
     while(g_loadedGameServerCount < g_gameServerConfigs.size())
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
+#endif
 
+#ifdef USE_HTTP_SERVER
     std::thread httpServers(runHTTPServer, hostName);
     httpServers.detach();
+#endif
 
     printf("Open Carom3D Server initialized successfully.\n");
 
