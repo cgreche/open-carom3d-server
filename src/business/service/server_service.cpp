@@ -16,8 +16,10 @@ namespace business {
 
     //Argument needs to be a pointer (or use std::ref) for correct object pointing
     void runServer(Server* gameServer) {
-        for(;;)
+        for(;;) {
             gameServer->poll();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
     }
 
     ServerService &ServerService::getInstance() {

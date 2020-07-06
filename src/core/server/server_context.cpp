@@ -2,6 +2,7 @@
 // Created by CGR on 14/05/2020.
 //
 
+#include <thread>
 #include <nettools/ntEventHandler.h>
 #include <nettools/ntClient.h>
 #include "server_context.h"
@@ -61,6 +62,7 @@ namespace core {
     void Server::run() {
         for(;;) {
             m_ntServer.poll();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 
