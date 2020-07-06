@@ -58,6 +58,7 @@ namespace business {
         void sendMatchEventInfo2(User& user, const u8* data, u32 dataSize);
         void requestMatchMakerScreen(User& user);
         void inviteUserToRoom(User& user, const wchar_t* userName);
+        void joinUserRoom(User& user, const wchar_t* userName);
 
         //
         void updateUserWithAllServerRooms(const User& user);

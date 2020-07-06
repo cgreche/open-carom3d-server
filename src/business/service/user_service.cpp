@@ -218,7 +218,7 @@ namespace business {
 
 		if (::wcsstr(message, L"-s") != 0) {
             this->startMatch(user);
-		}
+        }
 
         RoomService::getInstance().sendMessageToRoom(*room, user, message);
     }
@@ -259,6 +259,12 @@ namespace business {
             result = 2;
         else
             result = 0;
+
+        if(::wcsstr(message, L"-d") != 0) {
+            ActionData action = ActionBuilder(0x72).add(2).build();
+            user.sendAction(action);
+            return;
+        }
 
         if(result == 0)
             targetUser->sendAction(UserPrivateMessageActionTemplate(user.player()->name(), message).data());
@@ -376,6 +382,42 @@ namespace business {
         //3 - Player in another room
         //4 - Unknown
         ActionBuilder builder(0x4C);
+        builder.add(result);
+        user.sendAction(builder.build());
+    }
+
+    void UserService::joinUserRoom(User& user, const wchar_t* userName) {
+        Channel* channel = user.channelIn();
+        if(nullptr == channel)
+            return;
+
+        u32 result;
+        Room* room;
+
+        User* targetUser = findUser(userName);
+        //TODO(CGR): change literals to aliases
+        if(nullptr == targetUser || &targetUser->server() != &user.server())
+            result = 2;
+        else {
+            room = targetUser->roomIn();
+            if(nullptr == room)
+                result = 3;
+            else if(*room->password())
+                result = 4;
+            else
+                result = 0;
+        }
+
+        if(result == 0) {
+            this->removeUserFromCurrentSpot(user);
+            RoomService::getInstance().insertUserIntoRoom(*room, user);
+        }
+
+        //0 - Success
+        //2 - Player not in this server
+        //3 - Player not in a room
+        //4 - Denied
+        ActionBuilder builder(0x72);
         builder.add(result);
         user.sendAction(builder.build());
     }

@@ -188,6 +188,12 @@ namespace business {
         }
     };
 
+    class JoinIdAction : public GameServerAction<wchar_t> {
+        void execute(const ActionData& action, User& user, const wchar_t* data) override {
+            UserService::getInstance().joinUserRoom(user, data);
+        }
+    };
+
 }
 
 

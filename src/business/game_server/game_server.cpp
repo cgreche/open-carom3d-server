@@ -37,6 +37,7 @@ namespace business {
 #define ROOM_KICK_PLAYER_ACTION 0x96
 #define MATCH_MAKER_SCREEN_REQUEST 0x97
 #define ROOM_MESSAGE_ACTION 0x9A
+#define JOINID_ACTION 0xA1
 
 //Action Sent to player: 0x4F (LG_BANUSER): TODO(CGR): what is this?
 
@@ -64,6 +65,7 @@ namespace business {
             { ROOM_KICK_PLAYER_ACTION, new RoomKickPlayerAction },
             { MATCH_MAKER_SCREEN_REQUEST, new MatchMakerScreenRequestAction },
             { ROOM_MESSAGE_ACTION, new RoomMessageAction },
+            { JOINID_ACTION, new JoinIdAction },
     };
 
     static std::wstring resolveTableTypeName(int tableType) {
