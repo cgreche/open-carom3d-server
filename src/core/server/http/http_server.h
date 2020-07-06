@@ -18,6 +18,8 @@ namespace core {
         explicit HTTPServer(const ServerConfig &config);
         virtual ~HTTPServer() {};
 
+        void run() override;
+
         MessagingProtocol* messagingProtocol() override;
     };
 
