@@ -20,6 +20,8 @@ using namespace core;
 #define USE_GAME_SERVERS
 #define USE_HTTP_SERVER
 
+#define DEFAULT_HOSTNAME "127.0.0.1"
+
 static std::vector<GameServerConfig> g_gameServerConfigs;
 int g_loadedGameServerCount = 0;
 
@@ -96,6 +98,9 @@ int main(int argc, char *argv[]) {
     std::string hostName;
     hostFile.open("resources/host.txt");
     std::getline(hostFile, hostName);
+
+    if(hostName.size() == 0)
+        hostName = DEFAULT_HOSTNAME;
 
 #ifdef USE_GAME_SERVERS
     loadGameServerConfigs(hostName, g_gameServerConfigs);
