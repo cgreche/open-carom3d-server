@@ -24,19 +24,19 @@ namespace business {
     class UserService {
 
         std::map<int, User *> m_clientsUsers;
-
-        void linkClientToUser(core::ClientSession &client, User &user);
+        std::map<Account*, User*> m_usersAccounts;
 
     public:
         static UserService &getInstance();
 
-        void loginUser(User& user, const wchar_t *acocuntId, const wchar_t *accountPassword);
+        void loginUser(User& user, const wchar_t *acocuntId, const wchar_t *accountPassword, const wchar_t *preferredLanguage);
         void logoutUser(User &user);
-        User* createUserSession(core::ClientSession &clientSession);
         User *getUser(core::ClientSession &clientSession);
+        User* findUser(const wchar_t* userName);
 
-        Channel *joinChannel(User &user, const wchar_t *channelName, bool createIfNotExists);
+        Channel *joinChannel(User &user, const wchar_t *channelName);
         Room *createRoom(User &user, const CreateRoomActionData &createRoomActionData);
+		void sendNotifyMessage(User& user, const wchar_t* message);
         Room *joinRoom(User &user, const wchar_t* roomTitle, const wchar_t* roomPassword);
         void exitRoom(User &user);
         void joinRoomSlot(User& user, int slot);
@@ -46,14 +46,21 @@ namespace business {
         void kickUserFromRoom(User& user, int userListIndex);
         void sendMessageToRoom(User& user, const wchar_t* message);
         void startMatch(User& user);
+        void matchFinished(User& user);
+        void requestPlayerProfile(User& user, const wchar_t* playerName);
+        void sendPrivateMessageToUser(User& user, const wchar_t* userName, const wchar_t* message);
+        void requestUserSpot(User& user, const wchar_t* userName);
+        void requestGuildProfile(User& user, const wchar_t* guildName);
+        void sendGuildMessage(User& user, const wchar_t* message);
+        void requestGuildUserSpots(User& user, const wchar_t* guildName);
+        void setCoverStates(User& user, const int states[]);
         void sendMatchEventInfo(User& user, const u8* data, u32 dataSize);
-		void requestMatchMakerScreen(User& user);
+        void sendMatchEventInfo2(User& user, const u8* data, u32 dataSize);
+        void requestMatchMakerScreen(User& user);
+        void inviteUserToRoom(User& user, const wchar_t* userName);
+        void joinUserRoom(User& user, const wchar_t* userName);
 
         //
-        void notifyServerOfRoomCreation(const GameServer& server, const Room& room);
-        void notifyChannelOfRoomMasterUpdate(const GameServer& server, const Room& room);
-        void notifyChannelOfRoomPlayerCountUpdate(const GameServer &server, const Room &room);
-        void notifyChannelOfRoomStateUpdate(const GameServer &server, const Room &room);
         void updateUserWithAllServerRooms(const User& user);
 
 		//Utils

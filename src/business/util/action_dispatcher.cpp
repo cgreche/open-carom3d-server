@@ -15,18 +15,13 @@ namespace core {
         return dispatcher;
     }
 
-    ActionDispatcher &ActionDispatcher::action(ActionData &data) {
+    ActionDispatcher &ActionDispatcher::action(const ActionData &data) {
         m_actions.push_back(&data);
         return *this;
     }
 
-    ActionDispatcher &ActionDispatcher::to(const Destination &destination) {
-        m_destination = const_cast<Destination *>(&destination);
-        return *this;
-    }
-
-    void ActionDispatcher::send() {
-        m_destination->send(m_actions);
+    void ActionDispatcher::send(const Destination& destination) {
+        ((Destination&)destination).send(m_actions);
     }
 
 }

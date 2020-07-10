@@ -14,11 +14,11 @@ namespace business {
         return type == 0;
     }
 
-    const wchar_t *Channel::description() {
+    const wchar_t *Channel::description() const {
         return L"Channel";
     }
 
-    const wchar_t *Channel::name() {
+    const wchar_t *Channel::name() const {
         return m_channelName.c_str();
     }
 
@@ -29,18 +29,17 @@ namespace business {
 
     void Channel::removeUser(User &user) {
         //TODO(CGR): A more elegant way to remove player from list
-        auto it = m_users.begin();
-        for (; it != m_users.end(); ++it) {
-            User *u = *it;
-            if (u == &user) {
-                m_users.erase(it);
-                return;
-            }
-        }
+        auto it = std::find(m_users.begin(), m_users.end(), &user);
+        if(m_users.end() != it)
+            m_users.erase(it);
     }
 
     bool Channel::isUserIn(const wchar_t *userName) {
         return false;
+    }
+
+    unsigned int Channel::userCount() {
+        return m_users.size();
     }
 
 }

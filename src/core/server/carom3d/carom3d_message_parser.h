@@ -6,7 +6,7 @@
 #define __OPEN_CAROM3D_SERVER_MESSAGE_PARSER_H__
 
 #include <vector>
-#include "../action.h"
+#include "action.h"
 #include "crypto.h"
 
 namespace core {
@@ -16,7 +16,7 @@ namespace core {
         unsigned int parsedTotalLen;
     };
 
-    class MessageParser {
+    class Carom3DMessageParser {
     public:
         ParsedDataResultInfo parseMessageData(CryptoContext &cryptoCtx, unsigned char *data, unsigned int dataLen);
     };

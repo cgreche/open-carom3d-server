@@ -21,14 +21,13 @@ namespace business {
         explicit Channel(const wchar_t *channelName);
 
         bool isOfType(int type) override;
-        const wchar_t* description() override;
-        const wchar_t *name() override;
+        const wchar_t* description() const override;
+        const wchar_t *name() const override;
 
         int insertUser(User& user) override;
         void removeUser(User& user) override;
         bool isUserIn(const wchar_t* userName) override;
-
-        const wchar_t *name() const { return m_channelName.c_str(); }
+        unsigned int userCount() override;
 
         const std::vector<User *> &usersIn() const { return m_users; }
     };

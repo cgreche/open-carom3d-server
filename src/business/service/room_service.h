@@ -11,6 +11,11 @@ namespace business {
     class Room;
 
     class RoomService {
+
+        void resetRoom(Room& room);
+        void updateRoom(Room& room);
+        bool updateChallenge(Room& room);
+
     public:
         static RoomService& getInstance();
 
@@ -24,9 +29,15 @@ namespace business {
 		void updateSlotInfo(Room& room);
         void changeRoomState(Room& room, bool open);
         void sendMessageToRoom(Room& room, User& sender, const wchar_t* message);
-        void startGame(Room* room);
+        void startMatch(Room& room);
+        void userFinishedPlaying(Room& room, const User& user);
+        void setUserOutOfGameScreen(Room& room, User& user);
 
-		void notifyChannelOfRoomMasterChange(const GameServer& server, const Room& room);
+        void notifyServerOfRoomCreation(const GameServer& server, const Room& room);
+		void notifyServerOfRoomMasterChange(const GameServer& server, const Room& room);
+        void notifyServerOfRoomPlayerCountUpdate(const GameServer& server, const Room& room);
+        void notifyServerOfRoomStateUpdate(const GameServer& server, const Room& room);
+
     };
 
 }

@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<meta charset="UTF-8"></meta>
+		<style>
+			body {    
+				margin: 0 !important;
+				padding: 0 !important;
+				overflow: hidden;
+			}
+			
+			#msg {
+			  position: absolute;
+			}
+		</style>
+	</head>
+	<body style="background-color:#000000;" onload="javascript:move()">
+		<p id="msg" style="color:#F0FFFF">Powered by Open Carom3D Server</p>
+		
+		<script>
+			function move() {
+
+			  var elem = document.getElementById("msg");
+			  var pos = 0;
+			  var id = setInterval(frame, 5);
+			  function frame() {
+			    if(pos <= 0)
+				  direction = 1;
+			    else if(pos >= 400)
+			    direction = -1;
+			    pos += direction;
+				elem.style.left = pos + "px"; 
+			  }
+			}
+		</script>
+	</body>
+</html>
+

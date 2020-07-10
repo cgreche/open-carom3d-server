@@ -2,15 +2,15 @@
 // Created by CGR on 15/05/2020.
 //
 
+#include <map>
 #include <business/entity/account.h>
-#include "business/entity/room.h"
+#include <business/entity/room.h>
 #include <business/service/channel_service.h>
 #include <business/service/user_service.h>
-#include <business/game_server/actions/join_channel_action.h>
 #include <business/service/room_service.h>
-#include "actions/login_action.h"
+#include <core/server/carom3d/carom3d_protocol.h>
 #include "game_server.h"
-#include "actions.h"
+#include "recv_actions.h"
 
 namespace business {
 
@@ -23,16 +23,23 @@ namespace business {
 #define EXIT_MATCH_ACTION 0x08
 #define START_MATCH_ACTION 0x09
 #define END_MATCH_ACTION 0x0A
-#define PLAYER_PROFILE_REQUEST 0x35
-#define PERSONAL_MESSAGE_ACTION 0x36
+#define PLAYER_PROFILE_REQUEST_ACTION 0x35
+#define USER_PRIVATE_MESSAGE_ACTION 0x36
+#define USER_SPOT_REQUEST_ACTION 0x37
+#define GUILD_PROFILE_REQUEST_ACTION 0x38
+#define GUILD_MESSAGE_ACTION 0x39
+#define GUILD_USER_SPOTS_REQUEST_ACTION 0x3A
+#define SET_COVER_STATES_ACTION 0x3B
 #define MATCH_EVENT_INFO_ACTION 0x69
+#define MATCH_EVENT_INFO_ACTION2 0x6B
+#define INVITE_USER_TO_ROOM_ACTION 0x6C
 #define ROOM_SLOT_MODIFICATION_ACTION 0x6D
 #define ROOM_KICK_PLAYER_ACTION 0x96
 #define MATCH_MAKER_SCREEN_REQUEST 0x97
 #define ROOM_MESSAGE_ACTION 0x9A
+#define JOINID_ACTION 0xA1
 
 //Action Sent to player: 0x4F (LG_BANUSER): TODO(CGR): what is this?
-
 
     static std::map<int, Action *> actions = {
             { LOGIN_ACTION, new LoginAction },
@@ -44,38 +51,91 @@ namespace business {
             { EXIT_MATCH_ACTION, new ExitRoomAction },
 			{ START_MATCH_ACTION, new StartMatchAction },
 			{ END_MATCH_ACTION, new EndMatchAction },
-			{ PLAYER_PROFILE_REQUEST, new PlayerProfileRequestAction },
+            { PLAYER_PROFILE_REQUEST_ACTION, new PlayerProfileRequestAction },
+            { USER_PRIVATE_MESSAGE_ACTION, new UserPrivateMessageAction },
+            { USER_SPOT_REQUEST_ACTION, new UserSpotRequestAction },
+            { GUILD_PROFILE_REQUEST_ACTION, new GuildProfileRequestAction },
+            { GUILD_MESSAGE_ACTION, new GuildMessageAction },
+            { GUILD_USER_SPOTS_REQUEST_ACTION, new GuildUserSpotsRequestAction },
+            { SET_COVER_STATES_ACTION, new SetCoverStatesAction },
+            { INVITE_USER_TO_ROOM_ACTION, new InviteUserToRoomAction },
             { MATCH_EVENT_INFO_ACTION, new MatchEventInfoAction },
+            { MATCH_EVENT_INFO_ACTION2, new MatchEventInfoAction2 },
             { ROOM_SLOT_MODIFICATION_ACTION, new RoomSlotModificationAction },
             { ROOM_KICK_PLAYER_ACTION, new RoomKickPlayerAction },
             { MATCH_MAKER_SCREEN_REQUEST, new MatchMakerScreenRequestAction },
             { ROOM_MESSAGE_ACTION, new RoomMessageAction },
+            { JOINID_ACTION, new JoinIdAction },
     };
 
-    GameServer::GameServer(const ServerConfig &config)
-            : Server(config) {
-        this->setActionMap(&actions);
-    }
+    static std::wstring resolveTableTypeName(int tableType) {
+        switch(tableType) {
+        case 0:
+            return L"No Pocket";
 
-    void GameServer::onClientConnection(core::ClientSession *client) {
-        Server::onClientConnection(client);
-        User* user = UserService::getInstance().createUserSession(*client);
-        user->setServer((GameServer*)&client->server());
-        m_users.push_back(user);
-    }
+        case 1:
+            return L"Pocket";
 
-    void GameServer::onClientDisconnection(core::ClientSession *client) {
-        Server::onClientDisconnection(client);
-        User* user = UserService::getInstance().getUser(*client);
-        UserSpot* spot = user->spot();
-        if(spot) {
-            if(spot->isOfType(0))
-                ChannelService::getInstance().removeUserFromChannel(*(Channel*)spot, *user);
-            if(spot->isOfType(1))
-                RoomService::getInstance().removeUserFromRoom(*(Room*)spot, *user);
+        case 2:
+            return L"Snooker";
+
+        default:
+            return L"All";
         }
-        UserService::getInstance().logoutUser(*user);
-        //TODO(CGR): Remove User
+    }
+
+
+    class GameServerProtocol : public core::Carom3DProtocol {
+    public:
+        GameServerProtocol() {
+            this->setUserActionMap(&actions);
+        }
+
+        core::ClientSession* createSession(nettools::ntConnection& ntClient, core::Server& server) {
+            return new User(ntClient, server);
+        }
+
+        void onUnhandledUserAction(core::Carom3DUserSession& session, const ActionData& actionData) {
+            //TODO: Invalid Action
+            User& user = (User&)session;
+            if(!user.player())
+                core::Carom3DProtocol::onUnhandledUserAction(session, actionData);
+            else {
+                printf("Unhandled client action: %S - %x - %d\n",
+                    user.player()->name(),
+                    actionData.id(),
+                    actionData.data().size());
+                printf("Data: \n");
+                for(u8 byte : actionData.data()) {
+                    printf("%x ", byte);
+                }
+                printf("\n");
+                for(u8 byte : actionData.data()) {
+                    printf("%c ", (byte >= 0x20 && byte <= 0x7F) ? byte : ' ');
+                }
+                printf("\n\n");
+            }
+        }
+    };
+
+    static GameServerProtocol g_protocol;
+
+    GameServer::GameServer(const business::GameServerConfig &config)
+            : core::Carom3DServer(config)
+            , gsConfig(config) {
+        m_qualifiedName = config.serverName;
+        m_qualifiedName += L" - ";
+        m_qualifiedName += resolveTableTypeName(config.tableType);
+    }
+
+    core::MessagingProtocol* GameServer::messagingProtocol() {
+        return &g_protocol;
+    }
+
+    void GameServer::onClientDisconnection(core::ClientSession& client) {
+        User& user = (User&)client;
+        UserService::getInstance().logoutUser(user);
+        this->Carom3DServer::onClientDisconnection(client);
     }
 
     int GameServer::createRoom(const wchar_t *title, User *user, int maxPlayers, const Room::GameInfo &gameInfo, Room **pRetRoom) {
@@ -89,7 +149,7 @@ namespace business {
     Room *GameServer::getRoom(const wchar_t *title) {
         //TODO(CGR): more efficient way to find room
         for(auto room : m_rooms) {
-            if(::wcscmp(room->title(),title) == 0)
+            if(::wcscmp(room->name(),title) == 0)
                 return room;
         }
         return nullptr;

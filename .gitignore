@@ -1,0 +1,9 @@
+﻿################################################################################
+# Este arquivo .gitignore foi criado automaticamente pelo Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/project/out/build/x64-Debug
+/project/out/build/x64-Debug (padrão)
+/project/out/build/x64-Release
+/project/CMakeSettings.json

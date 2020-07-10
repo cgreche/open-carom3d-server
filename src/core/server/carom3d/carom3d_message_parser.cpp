@@ -2,12 +2,11 @@
 // Created by CGR on 14/05/2020.
 //
 
-#include "message_parser.h"
+#include "carom3d_message_parser.h"
 
 namespace core {
 
-    ParsedDataResultInfo
-    MessageParser::parseMessageData(CryptoContext &cryptoCtx, unsigned char *data, unsigned int dataLen) {
+    ParsedDataResultInfo Carom3DMessageParser::parseMessageData(CryptoContext &cryptoCtx, unsigned char *data, unsigned int dataLen) {
         ParsedDataResultInfo info;
         int i = 0;
         unsigned int parsedLen = 0;

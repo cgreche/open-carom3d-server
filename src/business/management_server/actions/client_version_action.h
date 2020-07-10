@@ -5,11 +5,11 @@
 #ifndef __OPEN_CAROM3D_SERVER_CLIENT_VERSION_ACTION_H__
 #define __OPEN_CAROM3D_SERVER_CLIENT_VERSION_ACTION_H__
 
-#include <business/util/abstract_action.h>
+#include "../management_server_action.h"
 
 namespace business { namespace management {
 
-    class ClientVersionAction : public AbstractAction<const char> {
+    class ClientVersionAction : public ManagementServerAction<const char> {
     public:
         bool validate(const ActionData &action) override;
 

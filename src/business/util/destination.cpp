@@ -17,8 +17,10 @@ namespace business {
         , m_to(to) {
     }
 
-    void ServerDestination::send(std::list<core::ActionData *> &actions) {
-        for(auto user : m_server.users()) {
+    void ServerDestination::send(const std::list<const core::ActionData *> &actions) {
+        auto const &clients = ((GameServer&)m_server).clients();
+        for(auto const& client : clients) {
+            User* user = (User*)client.second;
             //TODO(CGR): transform values in non-literal constants
             int to = m_to;
             if(to != 0) {
@@ -34,7 +36,7 @@ namespace business {
             }
 
             for (auto action : actions)
-                user->client().sendAction(*action);
+                user->sendAction(*action);
         }
     }
 
@@ -42,10 +44,10 @@ namespace business {
             : m_channel(channel) {
     }
 
-    void ChannelDestination::send(std::list<core::ActionData *> &actions) {
+    void ChannelDestination::send(const std::list<const core::ActionData *> &actions) {
         for (auto user : m_channel.usersIn()) {
             for (auto action : actions)
-                user->client().sendAction(*action);
+                user->sendAction(*action);
         }
     }
 
@@ -54,11 +56,10 @@ namespace business {
 
     }
 
-    void RoomDestination::send(std::list<core::ActionData *> &actions) {
-        for (auto userListIndex : m_room.userListIndexes()) {
-            User *user = m_room.userInListIndex(userListIndex);
+    void RoomDestination::send(const std::list<const core::ActionData *> &actions) {
+        for (auto user : m_room.users()) {
             for (auto action : actions)
-                user->client().sendAction(*action);
+                user->sendAction(*action);
         }
     }
 
@@ -66,9 +67,9 @@ namespace business {
             : m_user(user) {
     }
 
-    void UserDestination::send(std::list<core::ActionData *> &actions) {
+    void UserDestination::send(const std::list<const core::ActionData *> &actions) {
         for (auto action : actions)
-            m_user.client().sendAction(*action);
+            ((User&)m_user).sendAction(*action);
     }
 
 }

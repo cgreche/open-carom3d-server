@@ -10,8 +10,10 @@
 namespace core {
 
     struct ServerConfig {
-        std::string host;
-        unsigned short port;
+        struct HostInfo {
+            std::string hostname;
+            unsigned short port;
+        } hostInfo;
     };
 
 }

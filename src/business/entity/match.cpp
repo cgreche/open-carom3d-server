@@ -6,8 +6,8 @@
 
 namespace business {
 
-    business::Match::Match(int matchId, const business::Room &room, u32 matchRandomSeed, int teamCount,
-                           int playersPerTeam): m_room(room) {
+    Match::Match(int matchId, const business::Room &room, u32 matchRandomSeed)
+        : m_room(room) {
 
     }
 

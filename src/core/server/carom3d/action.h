@@ -6,6 +6,7 @@
 #define __OPEN_CAROM3D_SERVER_ACTION_H__
 
 #include <vector>
+#include <core/util/types.h>
 
 namespace core {
 
@@ -27,7 +28,7 @@ namespace core {
 
         int id() const { return m_id; }
 
-        const std::vector<unsigned char> &data() const { return m_content; }
+        const std::vector<u8> &data() const { return m_content; }
     };
 
     class Action {
