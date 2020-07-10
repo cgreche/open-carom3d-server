@@ -260,11 +260,13 @@ namespace business {
         else
             result = 0;
 
+#ifdef _DEBUG
         if(::wcsstr(message, L"-d") != 0) {
-            ActionData action = ActionBuilder(0x72).add(2).build();
+            ActionData action = ActionBuilder(0x1F4).add(0).add(0).add(0).add(0).add(0).build();
             user.sendAction(action);
             return;
         }
+#endif
 
         if(result == 0)
             targetUser->sendAction(UserPrivateMessageActionTemplate(user.player()->name(), message).data());
