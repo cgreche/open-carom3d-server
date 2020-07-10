@@ -255,6 +255,8 @@ namespace business {
     }
 
     void RoomService::startMatch(Room& room) {
+        if(room.inGame())
+            return;
         room.startMatch();
 
         std::srand(std::time(nullptr)); // use current time as seed for random generator
