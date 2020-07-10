@@ -49,23 +49,15 @@ namespace core {
         }
 
         std::string generateProfileData(std::string userId) {
-            std::string content =
-                "<html> \
-                <style> \
-                    body { \
-                        background-image: url('https://cdn.pixabay.com/photo/2016/09/01/08/24/smiley-1635449_960_720.png'); \
-                        background-position: center center; \
-                        background-repeat: no-repeat; \
-                        background-size: auto 100%; \
-                        height: 100%; \
-                    } \
-                    .user-id { display: table; margin: auto; position: relative; top: 10%; font-size: 2em; font-weight: bold; text-align: center; color:#0080FF; } \
-                </style> \
-                <body> \
-                <span class=\"user-id\">" + userId + "</span> \
-                </body</html>";
-
-            return content;
+            std::vector<uint8_t> content = readFile("resources/user-profile-template.html");
+            std::string s(content.begin(), content.end());
+            size_t is = 0;
+            std::string userProperty = "${user.account.name}";
+            while((is = s.find(userProperty, is)) != std::string::npos) {
+                s.replace(is, userProperty.size(), userId);
+                is += userId.size();
+            }
+            return s;
         }
 
         void onMessageReceived(ClientSession & user) override {

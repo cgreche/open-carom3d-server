@@ -77,3 +77,8 @@ add_executable(open_carom3d_server
         ../src/core/server/server_context.h
         ../src/core/util/types.h
         ../src/server_starter.cpp)
+
+add_custom_command(TARGET open_carom3d_server POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../resources $<TARGET_FILE_DIR:open_carom3d_server>/resources)
+
+#file(COPY ${PROJECT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR})
