@@ -31,8 +31,7 @@ namespace nettools {
 	protected:
 		int m_socket; //fd/SOCKET
 		sockaddr_in m_address;
-		ntEventHandler *m_eventHandler;
-		void *m_bindedData;
+		void * m_boundData;
 
 		NT_ERROR _socket(int *socket);
 		NT_ERROR _bind(int socket, sockaddr *address, u32 len);
@@ -58,11 +57,8 @@ namespace nettools {
 
         int socket() const { return m_socket; }
 
-		void setEventHandler(ntEventHandler *eventHandler);
-		ntEventHandler *eventHandler() const { return m_eventHandler; }
-
-		void bindData(void *data) { m_bindedData = data; }
-        void* bindedData() { return m_bindedData; }
+		void bindData(void *data) { m_boundData = data; }
+        void* boundData() { return m_boundData; }
 	};
 
 }

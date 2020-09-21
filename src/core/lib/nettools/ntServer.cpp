@@ -3,6 +3,15 @@
 #include "ntEventHandler.h"
 
 namespace nettools {
+	
+	bool ntServer::checkPendingDisconnection(ntConnection* connection) {
+		std::set<ntConnection*>::iterator it = m_pendingDisconnections.find(connection);
+		if(it != m_pendingDisconnections.end()) {
+			m_pendingDisconnections.erase(it);
+			return true;
+		}
+		return false;
+	}
 
 	ntServer::ntServer() {
 	}
@@ -32,7 +41,7 @@ namespace nettools {
 				m_clients.push_back(newClient);
 				if (m_eventHandler)
 				    //TODO(CGR): newClient must be of ntClient* type
-                    m_eventHandler->onClientConnection((ntClient*)newClient);
+                    m_eventHandler->onClientConnection(newClient);
 			}
 		} while (result == NTERR_SUCCESS);
 
@@ -41,18 +50,41 @@ namespace nettools {
 		    ntConnection* conn = *it;
 			u8 data[MAX_PACKET_SIZE];
 			u32 recvd;
-			result = _recv(conn->socket(), data, MAX_PACKET_SIZE, &recvd);
-			if (result == NTERR_SUCCESS) {
-				if (m_eventHandler) {
-                    if(recvd == 0) {
-                        m_eventHandler->onClientDisconnection((ntClient*)*it);
-                        it = m_clients.erase(it);
-                        continue;
-                    } else {
-                        //TODO(CGR): m_Clients must be of ntClient type
-                        m_eventHandler->onClientDataReceived((ntClient *) conn, data, recvd);
-                    }
+
+			bool disconnectClient = false;
+
+			if(checkPendingDisconnection(conn)) {
+				disconnectClient = true;
+				conn->close();
+			}
+			else {
+				result = _recv(conn->socket(), data, MAX_PACKET_SIZE, &recvd);
+				switch(result) {
+					case NTERR_SUCCESS: {
+						if(recvd == 0) {
+							disconnectClient = true;
+						}
+						else {
+							if(m_eventHandler) {
+								//TODO(CGR): m_Clients must be of ntClient type
+								m_eventHandler->onClientDataReceived(conn, data, recvd);
+							}
+						}
+
+						break;
+					}
+
+					case NTERR_OTHER: {
+						disconnectClient = true;
+						break;
+					}
 				}
+			}
+
+			if(disconnectClient) {
+				m_eventHandler->onClientDisconnection(*it);
+				it = m_clients.erase(it);
+				continue;
 			}
 
             ++it;
@@ -61,12 +93,7 @@ namespace nettools {
 	}
 
     NT_ERROR ntServer::disconnect(ntConnection *connection) {
-        std::list<ntConnection*>::iterator it = std::find(m_clients.begin(), m_clients.end(), connection);
-        if(it != m_clients.end()) {
-            m_eventHandler->onClientDisconnection((ntClient*)connection);
-            m_clients.erase(it);
-            return connection->close();
-        }
+		m_pendingDisconnections.insert(connection);
         return NTERR_SUCCESS;
     }
 
@@ -79,4 +106,11 @@ namespace nettools {
         return m_clients.size();
     }
 
+	void ntServer::setEventHandler(ntEventHandler* eventHandler) {
+		m_eventHandler = eventHandler;
+	}
+
+	ntEventHandler* ntServer::eventHandler() const {
+		return m_eventHandler;
+	}
 }

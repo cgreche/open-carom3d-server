@@ -42,4 +42,12 @@ namespace nettools {
 		ntConnection::close();
 		return NTERR_SUCCESS;
 	}
+
+	void ntClient::setEventHandler(ntEventHandler* eventHandler) {
+		m_eventHandler = eventHandler;
+	}
+
+	ntEventHandler* ntClient::eventHandler() const {
+		return m_eventHandler;
+	}
 }

@@ -8,6 +8,8 @@ namespace nettools {
     class ntEventHandler;
 
 	class ntClient : public ntConnection {
+		ntEventHandler* m_eventHandler;
+
 	public:
 		ntClient();
 		ntClient(ntEventHandler *eventHandler);
@@ -16,6 +18,9 @@ namespace nettools {
 		NT_ERROR send(const unsigned char *data, unsigned int dataLen);
 		virtual NT_ERROR poll();
 		virtual NT_ERROR close();
+
+		void setEventHandler(ntEventHandler* eventHandler);
+		ntEventHandler* eventHandler() const;
 	};
 
 }

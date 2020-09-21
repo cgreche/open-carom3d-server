@@ -2,12 +2,18 @@
 
 #include "ntConnection.h"
 #include <list>
+#include <set>
 
 namespace nettools {
 
 	class ntServer : public ntConnection
 	{
 		std::list<ntConnection*> m_clients;
+		std::set<ntConnection*> m_pendingDisconnections;
+
+		ntEventHandler* m_eventHandler;
+
+		bool checkPendingDisconnection(ntConnection* connection);
 
 	public:
 		ntServer();
@@ -17,6 +23,9 @@ namespace nettools {
 		virtual NT_ERROR close();
 
         unsigned int connectionCount() const;
+
+		void setEventHandler(ntEventHandler* eventHandler);
+		ntEventHandler* eventHandler() const;
 	};
 
 }

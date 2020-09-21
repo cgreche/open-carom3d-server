@@ -86,7 +86,7 @@ namespace nettools {
 		int result = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 		_socket(&m_socket);
 		setBlockingMode(false);
-		m_bindedData = NULL;
+		m_boundData = NULL;
 	}
 
 	ntConnection::ntConnection(int sock, sockaddr *address, u32 len) {
@@ -128,10 +128,6 @@ namespace nettools {
 	NT_ERROR ntConnection::close() {
 		::shutdown(m_socket, SD_BOTH);
 		return _close(m_socket);
-	}
-
-	void ntConnection::setEventHandler(ntEventHandler *eventHandler) {
-		m_eventHandler = eventHandler;
 	}
 
 }
