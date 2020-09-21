@@ -3,6 +3,7 @@
 //
 
 #include <vector>
+#include <ctime>
 #include "carom3d_protocol.h"
 #include "carom3d_user_session.h"
 #include "action.h"
@@ -20,6 +21,7 @@ namespace core {
 
     void Carom3DProtocol::onMessageReceived(ClientSession& session) {
         Carom3DUserSession& user = (Carom3DUserSession&)session;
+        user.update();
 
         u32 dataLen = user.pendingReadDataSize();
         ParsedDataResultInfo parsedData = m_messageParser.parseMessageData(user.inDataCryptoCtx(), user.pendingReadData(), user.pendingReadDataSize());

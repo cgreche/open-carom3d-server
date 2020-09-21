@@ -19,6 +19,8 @@ namespace core {
         virtual ~Carom3DServer() {};
 
         MessagingProtocol* messagingProtocol() override;
+
+        void poll() override;
     };
 
 }

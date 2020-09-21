@@ -19,25 +19,25 @@ namespace core {
             : m_server(server) {
         }
 
-        void onClientConnection(nettools::ntClient* ntClient) override {
+        void onClientConnection(nettools::ntConnection* ntClient) override {
             ClientSession* client = m_server.messagingProtocol()->createSession(*ntClient, m_server);
             ntClient->bindData(client);
             m_server.onClientConnection(*client);
         }
 
-        void onClientDisconnection(nettools::ntClient* ntClient) override {
+        void onClientDisconnection(nettools::ntConnection* ntClient) override {
             ClientSession* client = m_server.client(ntClient->socket());
             m_server.onClientDisconnection(*client);
             m_server.messagingProtocol()->closeSession(*client);
         }
 
-        void onClientDataReceived(nettools::ntClient* ntClient, unsigned char* data, unsigned int dataLen) override {
+        void onClientDataReceived(nettools::ntConnection* ntClient, unsigned char* data, unsigned int dataLen) override {
             ClientSession* client = m_server.client(ntClient->socket());
             client->appendReceivedData(data, dataLen);
             m_server.messagingProtocol()->onMessageReceived(*client);
         }
 
-        void onClientDataSent(nettools::ntClient* ntClient, const unsigned char* data, unsigned int len) override {
+        void onClientDataSent(nettools::ntConnection* ntClient, const unsigned char* data, unsigned int len) override {
             ClientSession* client = m_server.client(ntClient->socket());
             //TODO
         }

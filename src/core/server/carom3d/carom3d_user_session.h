@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include <ctime>
 #include <core/server/server_context.h>
 #include <core/server/client_session.h>
 #include "crypto.h"
@@ -23,11 +24,12 @@ namespace core {
         CryptoContext m_outDataCryptoCtx;
         std::vector<ActionData> m_pendingActions;
         std::vector<u8> m_unparsedData;
+        time_t m_lastMessageTime;
 
     public:
         Carom3DUserSession(nettools::ntConnection& ntConnection, Server& server)
             : ClientSession(ntConnection, server) {
-
+            update();
         }
 
         CryptoContext& inDataCryptoCtx() { return m_inDataCryptoCtx; }
@@ -56,6 +58,14 @@ namespace core {
             m_outDataCryptoCtx.crypt(data, actionDataLen + 8);
             m_outDataCryptoCtx.update();
             m_ntClient.send(m_ntClient.socket(), data, actionDataLen + 8);
+        }
+
+        void update() {
+            m_lastMessageTime = ::time(nullptr);
+        }
+
+        time_t lastMessageTime() const {
+            return m_lastMessageTime;
         }
 
     };
