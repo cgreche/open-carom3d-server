@@ -12,9 +12,13 @@
 #define PLAYER_NAME_MAX_LEN 20
 #define GUILD_NAME_MAX_LEN 16
 
+#define CHANNEL_NAME_MAX_LEN 30
+
 #define ROOM_TITLE_MAX_LEN 40
 #define ROOM_PASSWORD_MAX_LEN 8
 #define ROOM_SLOT_COUNT 30
+
+#define SERVER_NAME_MAX_LEN 40
 
 enum class SpotType {
     LOGGED_OFF = 0,
